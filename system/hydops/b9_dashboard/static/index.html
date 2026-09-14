@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HydOps 관제 · B9</title>
+<link rel="stylesheet" href="/static/app.css" />
+<script src="/static/vendor/vue.global.prod.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+  <header class="top">
+    <div class="brand">
+      <span class="logo">⚙︎</span>
+      <div>
+        <div class="title">유압설비 사건 관제</div>
+        <div class="sub">B9 관제 화면 · 교육용 합성 데이터</div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="chip" :class="state.mode==='local'?'c-blue':'c-purple'" data-testid="mode">{{ state.mode==='local' ? '로컬 오케스트레이션 (LangGraph)' : '플랫폼 오케스트레이션' }}</span>
+      <span class="chip c-gray">run_id {{ state.run_id }}</span>
+      <span class="chip c-gray mono" data-testid="clock">시뮬레이터 {{ simClock }}</span>
+      <span class="chip c-gray">×{{ state.speed }}</span>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- 설비 카드 -->
+    <section class="panel assets">
+      <h2><span class="blk">B1·B4</span> 설비</h2>
+      <div v-for="a in assetCards" :key="a.asset_id" class="asset" :class="{sel: a.asset_id===assetId}" @click="assetId=a.asset_id" :data-testid="'asset-'+a.asset_id">
+        <div class="asset-h">
+          <b>{{ a.asset_id }}</b><span class="muted">{{ a.name }}</span>
+        </div>
+        <div class="kpis">
+          <div><label>온도</label><span class="big" :class="tempClass(a.temp)">{{ fmt(a.temp,1) }}<small>°C</small></span></div>
+          <div><label>부하</label><span class="big">{{ fmt(a.load,2) }}</span></div>
+          <div><label>품질</label><span class="flag" :class="'f-'+a.flag">{{ a.flag }}</span></div>
+        </div>
+        <div class="muted tiny">냉각: {{ a.cooling }} · 적용 SOP {{ a.sopCount }}건 · 허용 조치 {{ a.allowed.join(', ') || '없음' }}</div>
+      </div>
+
+      <div class="inject">
+        <h3>강사용 시나리오 주입 <span class="muted tiny">({{ assetId }})</span></h3>
+        <div class="btns">
+          <button @click="inject('cooling')" data-testid="inject-cooling">냉각 성능 저하</button>
+          <button @click="inject('severe')" data-testid="inject-severe">심각한 저하</button>
+          <button @click="inject('dropout')" data-testid="inject-dropout">센서 결측</button>
+          <button @click="inject('stuck')">센서 고착</button>
+          <button @click="inject('spike')">단발 급등</button>
+          <button @click="inject('fail_command')">다음 명령 실패</button>
+          <button @click="inject('restore')">냉각 복구</button>
+          <button class="ghost" @click="reset" data-testid="reset">초기화</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 추이 -->
+    <section class="panel chart">
+      <h2><span class="blk">B2·B3·B5</span> {{ assetId }} 최근 3분 관측 <span class="muted tiny">유효 값 선 · 품질 불량 점 · 조치 세로선</span></h2>
+      <svg :viewBox="`0 0 ${W} ${H}`" class="svg" data-testid="chart">
+        <rect :x="PAD" :y="10" :width="W-PAD-10" :height="H-40" class="plot" />
+        <g v-for="t in yTicks" :key="t">
+          <line :x1="PAD" :x2="W-10" :y1="y(t)" :y2="y(t)" class="grid-l" />
+          <text :x="PAD-8" :y="y(t)+4" class="axis" text-anchor="end">{{ t }}</text>
+        </g>
+        <line :x1="PAD" :x2="W-10" :y1="y(60)" :y2="y(60)" class="th-alarm" />
+        <text :x="W-14" :y="y(60)-6" class="th-t alarm" text-anchor="end">경보 60°C (10초 지속)</text>
+        <line :x1="PAD" :x2="W-10" :y1="y(55)" :y2="y(55)" class="th-rec" />
+        <text :x="W-14" :y="y(55)+14" class="th-t rec" text-anchor="end">회복 55°C (10초 유지)</text>
+        <g v-for="a in chartActions" :key="a.event_id+a.sim_ts">
+          <line :x1="a.x" :x2="a.x" :y1="10" :y2="H-30" class="act-l" :class="a.command_status==='SUCCEEDED'?'ok':'fail'" />
+          <text :x="a.x+4" :y="24" class="act-t">{{ a.action_id }} {{ a.requested_value }}</text>
+          <rect :x="a.x + a.waitW" :y="10" :width="a.winW" :height="H-40" class="verify-w" />
+          <text :x="a.x + a.waitW + 4" :y="H-36" class="act-t muted">재측정 창</text>
+        </g>
+        <path :d="tempPath" class="line-temp" />
+        <g v-for="(p,i) in badPoints" :key="i">
+          <circle :cx="p.x" :cy="p.y" r="3.5" :class="'bad f-'+p.flag" />
+        </g>
+        <text :x="PAD" :y="H-8" class="axis">{{ xStart }}</text>
+        <text :x="W-10" :y="H-8" class="axis" text-anchor="end">{{ xEnd }}</text>
+      </svg>
+      <div class="legend">
+        <span v-for="(n,f) in flagCounts" :key="f" class="flag" :class="'f-'+f">{{ f }} {{ n }}</span>
+        <span class="muted tiny">압력 {{ fmt(lastOf('PS1'),1) }} bar · 유량 {{ fmt(lastOf('FS1'),2) }} L/min</span>
+      </div>
+    </section>
+
+    <!-- 사건 목록 -->
+    <section class="panel events">
+      <h2><span class="blk">B5·B8</span> 사건</h2>
+      <div v-if="!events.length" class="empty">아직 사건이 없습니다. 정상 운전 중에는 조치가 없습니다.</div>
+      <div v-for="e in events" :key="e.event_id" class="ev" :class="{sel: e.event_id===selectedId}" @click="select(e.event_id)" :data-testid="'event-'+e.event_type">
+        <div class="ev-h">
+          <span class="st" :class="'s-'+e.status" :data-testid="'status-'+e.event_id">{{ statusKo(e.status) }}</span>
+          <b>{{ typeKo(e.event_type) }}</b><span class="muted">{{ e.asset_id }}</span>
+        </div>
+        <div class="mono tiny muted">{{ e.event_id }}</div>
+      </div>
+    </section>
+
+    <!-- 사건 상세 -->
+    <section class="panel detail" v-if="detail">
+      <h2><span class="blk">B9</span> 같은 event_id 의 전체 기록 <span class="mono tiny">{{ detail.event.event_id }}</span></h2>
+      <ol class="flow" data-testid="flow">
+        <li v-for="s in flowSteps" :key="s.key" :class="s.state"><span>{{ s.label }}</span></li>
+      </ol>
+
+      <div class="cols">
+        <div class="card">
+          <h3>① 감지 <span class="muted tiny">{{ detail.event.rule_version }}</span></h3>
+          <table class="kv"><tbody>
+            <tr v-for="(v,k) in detail.event.evidence" :key="k"><th>{{ k }}</th><td>{{ v }}</td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="card" v-if="proposal">
+          <h3>② 근거 확인 <span class="muted tiny">{{ detail.event.proposal.model }}</span></h3>
+          <div class="decision" :class="'d-'+proposal.decision" data-testid="decision">{{ decisionKo(proposal.decision) }} <b v-if="proposal.action_id">{{ proposal.action_id }} {{ proposal.value ?? '' }}</b></div>
+          <p class="rationale">{{ proposal.rationale }}</p>
+          <div class="tools">
+            <div v-for="(t,i) in detail.event.proposal.tool_trace" :key="i" class="tool" data-testid="tool-call"><span class="mono">{{ t.tool }}</span><span class="muted tiny">{{ short(t.result_summary) }}</span></div>
+          </div>
+          <div v-for="c in detail.citation_texts" :key="c.doc_id+c.section" class="cite" data-testid="citation">
+            <b>{{ c.doc_id }} v{{ c.version }} §{{ c.section }}</b> <span class="muted">{{ c.heading }}</span>
+            <div class="tiny">{{ c.text }}</div>
+          </div>
+          <div v-if="detail.event.proposal.citation_problems?.length" class="warn">검색되지 않은 인용: {{ detail.event.proposal.citation_problems.join(', ') }}</div>
+        </div>
+
+        <div class="card">
+          <h3>③ 사람 승인</h3>
+          <div v-if="canDecide" class="approve" data-testid="approval-form">
+            <label>승인자 <input v-model="approver" /></label>
+            <label>승인값 <input v-model.number="approveValue" type="number" step="0.05" /></label>
+            <div class="btns">
+              <button class="primary" @click="decide('APPROVED')" data-testid="approve">승인</button>
+              <button class="danger" @click="decide('REJECTED')" data-testid="reject">거부</button>
+            </div>
+            <div class="muted tiny">승인 기록이 없으면 조치 도구가 실행을 거부합니다.</div>
+          </div>
+          <div v-for="a in detail.approvals" :key="a.approval_id" class="rec">
+            <b :class="a.decision==='APPROVED'?'ok':'bad'">{{ a.decision==='APPROVED'?'승인':'거부' }}</b> {{ a.approver }} · 값 {{ a.approved_value ?? '-' }} <span class="mono tiny muted">{{ a.approval_id }}</span>
+          </div>
+          <div v-if="!canDecide && !detail.approvals.length" class="muted">승인 단계에 도달하지 않았습니다.</div>
+          <div v-if="detail.event.process_ref" class="rec">플랫폼 프로세스 <span class="mono">{{ detail.event.process_ref.instance_id }}</span></div>
+        </div>
+
+        <div class="card">
+          <h3>④ 실행 · ⑤ 재측정</h3>
+          <div v-for="a in detail.actions" :key="a.action_log_id" class="rec" data-testid="action-log">
+            명령 <b :class="a.command_status==='SUCCEEDED'?'ok':'bad'">{{ a.command_status }}</b> {{ a.action_id }} → {{ a.requested_value }}
+            <div class="mono tiny muted">{{ a.idempotency_key }}</div>
+          </div>
+          <div v-for="v in detail.verifications" :key="v.verification_id" class="rec" data-testid="verification">
+            회복 판정 <b :class="v.outcome==='RECOVERED'?'ok':'bad'">{{ outcomeKo(v.outcome) }}</b>
+            <div class="tiny">유효 {{ v.metrics.valid_ratio*100 }}% · 55°C 이하 연속 {{ v.metrics.longest_below_s }}초 · 평균 {{ v.metrics.mean_c ?? '-' }}°C</div>
+          </div>
+          <div v-if="waitingUntil" class="muted">재측정 대기 중 · {{ waitingUntil }}</div>
+          <div v-if="!detail.actions.length && !waitingUntil" class="muted">실행 기록 없음</div>
+          <div class="note">명령 성공과 회복 성공은 별도 필드로 저장됩니다.</div>
+        </div>
+      </div>
+
+      <div class="cols2">
+        <div class="card" v-if="detail.golden">
+          <h3>Golden Question</h3>
+          <ol class="gq">
+            <li>최근 온도는 유효하고 지속 이상인가? <b>{{ detail.golden.Q1.sensor_state }}</b> · 지속 이상 <b>{{ detail.golden.Q1.sustained_anomaly ? '예' : '아니오' }}</b></li>
+            <li>적용 SOP·허용 조치? <b>{{ detail.golden.Q2.sop.map(s=>s.doc_id+' v'+s.version).join(', ') || '없음' }}</b> · {{ detail.golden.Q2.allowed_actions.join(', ') || '-' }}</li>
+            <li>누가 승인·회복했나? <b>{{ detail.golden.Q3.approver || '-' }}</b> · 명령 {{ detail.golden.Q3.command_status || '-' }} · 판정 <b>{{ detail.golden.Q3.verification || '-' }}</b></li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>상태 이력</h3>
+          <div class="hist">
+            <div v-for="h in detail.history" :key="h.id" class="h"><span class="mono tiny">{{ time(h.at) }}</span> <span class="st small" :class="'s-'+h.to_status">{{ statusKo(h.to_status) }}</span> <span class="muted tiny">{{ h.actor }}</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="panel detail empty-detail" v-else>
+      <div class="empty">사건을 선택하면 감지 · 근거 · 승인 · 실행 · 재측정 기록을 한 화면에서 봅니다.</div>
+    </section>
+  </main>
+  <div class="err" v-if="state.last_error">{{ state.last_error }}</div>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>

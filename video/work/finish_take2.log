@@ -1,0 +1,35 @@
+CP-C 장면 수납 (scene start dur slack)
+   1     2.2  23.6    1.2 
+   2    26.9  24.8    1.2 
+   3    52.9  21.5    1.2 
+   4    75.6  26.3    1.2 
+   5   103.1  19.4    1.2 
+   6   123.8  19.2    1.2 
+   7   144.2  17.1    0.5 
+   8   161.8  24.1    1.2 
+   9   187.1  19.3    1.2 
+  10   207.6  21.9    1.2 
+  11   230.7  26.5    1.2 
+  12   258.4  35.3    1.2 
+  13   294.9  21.1    1.2 
+  14   317.2  17.9    1.2 
+  15   336.3  20.1   20.9 
+  16   377.3  18.4    1.2 
+  17   396.9  26.9    2.4 
+  겹침 0건 · 영상 7분 6초
+영상 길이: 426.28s
+$ ffmpeg -y -loglevel error -i /Users/uengine/uengine-platform/lecture/video/work/raw/hydops-raw.webm …
+생성: /Users/uengine/uengine-platform/lecture/video/work/narrated.mp4 (27.5 MB)
+
+=== ffprobe 요약 ===
+최종 길이: 426.28s
+  video: h264 1920x1080
+  audio: aac 24000Hz 2ch
+
+mean_volume: -24.2 dB
+디코드 오류: 0줄
+
+결과: PASS
+
+최종: /Users/uengine/uengine-platform/lecture/video/HydOps_강의시스템_설명영상.mp4 (27.5 MB)
+done

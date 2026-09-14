@@ -1,0 +1,45 @@
+{
+  "schema_name": "____",
+  "classes": [
+    {
+      "name": "Asset",
+      "key": "____",
+      "binding": {"kind": "graph", "label": "____"}
+    },
+    {
+      "name": "Event",
+      "key": "____",
+      "binding": {
+        "kind": "virtual",
+        "datasource": "____",
+        "table": "____",
+        "order_by": "created_at",
+        "column_map": [
+          {"property": "event_id", "column": "____"},
+          {"property": "asset_id", "column": "____"},
+          {"property": "status", "column": "status"},
+          {"property": "created_at", "column": "created_at"}
+        ]
+      }
+    },
+    {
+      "name": "Verification",
+      "key": "verification_id",
+      "binding": {
+        "kind": "virtual",
+        "datasource": "hydops_edu",
+        "table": "____",
+        "order_by": "verified_at",
+        "column_map": [
+          {"property": "verification_id", "column": "verification_id"},
+          {"property": "event_id", "column": "____"},
+          {"property": "outcome", "column": "____"}
+        ]
+      }
+    }
+  ],
+  "relationships": [
+    {"name": "HAS_EVENT", "from": "Asset", "to": "Event", "via": {"kind": "join", "from_property": "____", "to_property": "____"}},
+    {"name": "HAS_VERIFICATION", "from": "Event", "to": "Verification", "via": {"kind": "join", "from_property": "event_id", "to_property": "____"}}
+  ]
+}

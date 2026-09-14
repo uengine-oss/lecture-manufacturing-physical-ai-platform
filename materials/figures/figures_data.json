@@ -1,0 +1,185 @@
+{
+  "cooler_states": {
+    "100": {
+      "cycles": 489,
+      "mean_c": 36.02
+    },
+    "20": {
+      "cycles": 480,
+      "mean_c": 44.75
+    },
+    "3": {
+      "cycles": 480,
+      "mean_c": 56.19
+    }
+  },
+  "quality_flags": {
+    "OK": 49,
+    "SPIKE": 1,
+    "MISSING": 4,
+    "GAP": 3,
+    "STUCK": 3
+  },
+  "eval": {
+    "uci_grid": [
+      {
+        "k_sigma": 2.0,
+        "min_delta_c": 1.0,
+        "sustain_s": 1,
+        "tp": 120,
+        "fp": 4,
+        "fn": 0,
+        "delay_s": 0.0,
+        "baseline": 244,
+        "test": 180
+      },
+      {
+        "k_sigma": 2.0,
+        "min_delta_c": 1.0,
+        "sustain_s": 10,
+        "tp": 120,
+        "fp": 4,
+        "fn": 0,
+        "delay_s": 9.0,
+        "baseline": 244,
+        "test": 180
+      },
+      {
+        "k_sigma": 4.0,
+        "min_delta_c": 3.0,
+        "sustain_s": 1,
+        "tp": 120,
+        "fp": 1,
+        "fn": 0,
+        "delay_s": 0.0,
+        "baseline": 244,
+        "test": 180
+      },
+      {
+        "k_sigma": 4.0,
+        "min_delta_c": 3.0,
+        "sustain_s": 10,
+        "tp": 120,
+        "fp": 1,
+        "fn": 0,
+        "delay_s": 9.0,
+        "baseline": 244,
+        "test": 180
+      }
+    ],
+    "simulator_near_threshold": [
+      {
+        "steady_c": 59.8,
+        "sustain_s": 1,
+        "alarm_signals_600s": 99
+      },
+      {
+        "steady_c": 59.8,
+        "sustain_s": 3,
+        "alarm_signals_600s": 5
+      },
+      {
+        "steady_c": 59.8,
+        "sustain_s": 5,
+        "alarm_signals_600s": 0
+      },
+      {
+        "steady_c": 59.8,
+        "sustain_s": 10,
+        "alarm_signals_600s": 0
+      },
+      {
+        "steady_c": 60.2,
+        "sustain_s": 1,
+        "alarm_signals_600s": 101
+      },
+      {
+        "steady_c": 60.2,
+        "sustain_s": 3,
+        "alarm_signals_600s": 60
+      },
+      {
+        "steady_c": 60.2,
+        "sustain_s": 5,
+        "alarm_signals_600s": 38
+      },
+      {
+        "steady_c": 60.2,
+        "sustain_s": 10,
+        "alarm_signals_600s": 10
+      }
+    ]
+  },
+  "closed_loop": {
+    "alarm_s": 43,
+    "act_s": 58,
+    "no_action_last20_min": 66.87,
+    "acted_last20_max": 54.4
+  },
+  "outcomes": {
+    "회복 → 종결": {
+      "valid_ratio": 1.0,
+      "longest_below_s": 56,
+      "verdict": "RECOVERED"
+    },
+    "미개선 → 담당자 이관": {
+      "valid_ratio": 1.0,
+      "longest_below_s": 0,
+      "verdict": "NOT_IMPROVED"
+    },
+    "데이터 부족 → 재측정 보류": {
+      "valid_ratio": 0.25,
+      "longest_below_s": 11,
+      "verdict": "INSUFFICIENT_DATA"
+    }
+  },
+  "sop_filter": {
+    "HYD-01": [
+      "SOP-COOL-001@v2#2",
+      "SOP-COOL-001@v2#3",
+      "SOP-VER-001@v1#3",
+      "SOP-LOAD-001@v1#2",
+      "SOP-LOAD-001@v1#3"
+    ],
+    "HYD-02": [
+      "SOP-COOL-002@v1#6",
+      "SOP-VER-001@v1#3",
+      "SOP-COOL-002@v1#2",
+      "SOP-VER-001@v1#2",
+      "SOP-ESC-001@v1#1"
+    ],
+    "HYD-01+superseded": [
+      "SOP-COOL-001@v1#4",
+      "SOP-COOL-001@v2#4",
+      "SOP-VER-001@v1#4",
+      "SOP-ESC-001@v1#1",
+      "SOP-LOAD-001@v1#4"
+    ]
+  },
+  "zeroshot": {
+    "simulator": {
+      "inject_s": 60,
+      "rule_alarm_s": 82,
+      "zeroshot_alarm_s": 64
+    },
+    "uci": {
+      "100": {
+        "cycles": 20,
+        "alarms": 0
+      },
+      "20": {
+        "cycles": 20,
+        "alarms": 0
+      },
+      "3": {
+        "cycles": 20,
+        "alarms": 0
+      }
+    },
+    "phase_rate": [
+      0.016666666666666666,
+      1.0,
+      1.0
+    ]
+  }
+}

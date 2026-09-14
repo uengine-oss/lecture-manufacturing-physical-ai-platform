@@ -1,0 +1,7 @@
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+system/.venv/
+video/node_modules/
+system/out/*.log

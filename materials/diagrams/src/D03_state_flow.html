@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>사건 상태 흐름 — 정상 경로와 분기</h1>
+<p class="sub">명령 성공(<span class="mono">action_log.command_status</span>)과 회복 성공(<span class="mono">verification.outcome</span>)은 별도 필드다. 재시작 후 같은 사건을 다시 읽어도 이미 실행한 조치를 반복하지 않는다.</p>
+<svg width="1436" height="420" viewBox="0 0 1436 420" font-family="Pretendard" font-size="15">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6b7684"/></marker>
+<marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d92d20"/></marker></defs>
+<g font-weight="700" text-anchor="middle">
+<g stroke="#6b7684" stroke-width="2" marker-end="url(#a)"><path d="M160 80 H200"/><path d="M360 80 H400"/><path d="M560 80 H600"/><path d="M760 80 H800"/><path d="M960 80 H1000"/><path d="M1160 80 H1200"/></g>
+<rect x="20" y="45" width="140" height="70" rx="35" fill="#e2e8f0"/><text x="90" y="76">감지</text><text x="90" y="98" font-size="11.5" font-weight="400" class="mono">DETECTED</text>
+<rect x="200" y="45" width="160" height="70" rx="35" fill="#dbeafe"/><text x="280" y="76">근거 확인</text><text x="280" y="98" font-size="11.5" font-weight="400">EVIDENCE_READY</text>
+<rect x="400" y="45" width="160" height="70" rx="35" fill="#fef3c7"/><text x="480" y="76">승인 대기</text><text x="480" y="98" font-size="11.5" font-weight="400">PENDING_APPROVAL</text>
+<rect x="600" y="45" width="160" height="70" rx="35" fill="#dbeafe"/><text x="680" y="76">실행</text><text x="680" y="98" font-size="11.5" font-weight="400">EXECUTED</text>
+<rect x="800" y="45" width="160" height="70" rx="35" fill="#dbeafe"/><text x="880" y="76">재측정</text><text x="880" y="98" font-size="11.5" font-weight="400">VERIFYING</text>
+<rect x="1000" y="45" width="160" height="70" rx="35" fill="#dcfce7"/><text x="1080" y="76">회복 판정</text><text x="1080" y="98" font-size="11.5" font-weight="400">RECOVERED</text>
+<rect x="1200" y="45" width="200" height="70" rx="35" fill="#067647"/><text x="1300" y="76" fill="#fff">종결</text><text x="1300" y="98" font-size="11.5" font-weight="400" fill="#dcfce7">CLOSED</text>
+</g>
+<g stroke="#d92d20" stroke-width="2" fill="none" marker-end="url(#r)" stroke-dasharray="6 4">
+<path d="M90 115 V255"/><path d="M280 115 V255"/><path d="M480 115 V255"/><path d="M680 115 V255"/><path d="M880 115 V255"/><path d="M880 115 C 880 180, 1080 180, 1080 255"/>
+</g>
+<g font-size="13.5" text-anchor="middle" stroke="#fcfcfb" stroke-width="6" paint-order="stroke" font-weight="600">
+<text x="90" y="175" fill="#b42318">센서 오류</text><text x="280" y="175" fill="#b42318">근거 없음</text><text x="480" y="175" fill="#b42318">승인 거부</text><text x="680" y="165" fill="#b42318">도구 실패·</text><text x="680" y="183" fill="#b42318">범위 이탈</text><text x="850" y="175" fill="#b42318" text-anchor="end">데이터 부족</text><text x="1010" y="200" fill="#b42318">미개선</text>
+</g>
+<g font-weight="700" text-anchor="middle">
+<rect x="20" y="255" width="140" height="70" rx="12" fill="#f3e8ff"/><text x="90" y="285">센서 점검</text><text x="90" y="307" font-size="11.5" font-weight="400">SENSOR_CHECK</text>
+<rect x="200" y="255" width="160" height="70" rx="12" fill="#ffedd5"/><text x="280" y="285">보류</text><text x="280" y="307" font-size="11.5" font-weight="400">HOLD_NO_EVIDENCE</text>
+<rect x="400" y="255" width="160" height="70" rx="12" fill="#f1f5f9"/><text x="480" y="285">미실행 종료</text><text x="480" y="307" font-size="11.5" font-weight="400">REJECTED</text>
+<rect x="600" y="255" width="160" height="70" rx="12" fill="#fee2e2"/><text x="680" y="285">이관</text><text x="680" y="307" font-size="11.5" font-weight="400">ESCALATED</text>
+<rect x="800" y="255" width="160" height="70" rx="12" fill="#ffedd5"/><text x="880" y="285">재측정 보류</text><text x="880" y="307" font-size="11.5" font-weight="400">VERIFY_HOLD → 다음 창</text>
+<rect x="1000" y="255" width="160" height="70" rx="12" fill="#fee2e2"/><text x="1080" y="285">이관</text><text x="1080" y="307" font-size="11.5" font-weight="400">ESCALATED</text>
+</g>
+<rect x="20" y="350" width="1380" height="56" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="40" y="384" font-size="14.5"><tspan font-weight="700">코드가 지키는 합격 목표</tspan>   근거 없는 조치 0건 · 승인 없는 실행 0건 · 중복 실행 0건 · 재측정 없는 회복 판정 0건   (LLM 이 만든 approved=true 는 승인으로 인정하지 않는다)</text>
+</svg></div>

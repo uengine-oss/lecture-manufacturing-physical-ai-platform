@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>Skill 은 업무 지침, SOP 는 근거, 도구는 실행 기능</h1>
+<p class="sub">SKILL.md 에 승인 규칙을 썼다는 것만으로 승인 검사가 구현되지는 않는다. 검사는 도구의 코드가 한다.</p>
+<style>.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}.c{border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;background:#fff}.c h2{margin:0 0 6px;font-size:19px}.c p{margin:4px 0;font-size:14px;color:#374151}.c ul{margin:8px 0 0;padding-left:18px;font-size:13.5px}
+table{border-collapse:collapse;width:100%;margin-top:16px;font-size:13.5px;background:#fff}th,td{border-bottom:1px solid #eceff3;padding:8px 10px;text-align:left}th{background:#f8fafc}td.mono{font-size:13px}</style>
+<div class="g3">
+<div class="c l3"><h2>Skill · SKILL.md</h2><p><b>무엇을 어떤 순서로 판단하나</b></p><ul><li>센서 품질 확인 → 대상 설비 → SOP 검색 → 제안 → 승인 확인 → 실행 → 재측정</li><li>인용 규칙: 검색 결과에 실제로 나온 절만</li><li>중단 규칙: 근거 없으면 HOLD, 센서 오류면 SENSOR_CHECK</li><li>짧게(수업용 1.6천 자) · 에이전트가 실행 시 로드</li></ul></div>
+<div class="c l2"><h2>SOP · 문서 근거</h2><p><b>무엇이 허용되고 누가 승인하나</b></p><ul><li>5종: 센서 오류 점검 · 냉각 이상 확인 · 승인 부하 감소 · 조치 후 재점검 · 미개선 이관</li><li>같은 양식: 적용 설비 · 발동 조건 · 확인할 관측 · 허용 조치 · 승인 주체 · 재점검 기준</li><li>문서 ID·버전·유효일 → 긴 본문은 검색 도구로 불러온다</li></ul></div>
+<div class="c l4"><h2>도구 · 실행 기능</h2><p><b>실제로 조회하고 실행하고 검사한다</b></p><ul><li>DB·그래프 조회, 시뮬레이터 조치, 재측정 판정</li><li>허용 조치·값 범위·승인 기록·사건 유효성·중복 키를 코드에서 확인</li><li>LangChain 도구 · MCP 서버 · 플랫폼 프로세스가 같은 함수를 공유</li></ul></div>
+</div>
+<table><thead><tr><th>도구</th><th>입력</th><th>결과와 제한</th><th>누가 호출하나</th></tr></thead><tbody>
+<tr><td class="mono">get_asset_context</td><td class="mono">asset_id</td><td>센서 · 적용 SOP · 허용 조치(값 범위)</td><td>에이전트</td></tr>
+<tr><td class="mono">get_recent_window</td><td class="mono">asset_id, 기간</td><td>관측 요약 · 단위 · 품질 플래그 — 원시 배열은 주지 않는다</td><td>에이전트</td></tr>
+<tr><td class="mono">search_sop</td><td class="mono">asset_id, event_type</td><td>문서 ID · 버전 · 절 · 근거 본문 (설비·active 필터 + 그래프 확인)</td><td>에이전트</td></tr>
+<tr><td class="mono">propose_action</td><td class="mono">event_id, 근거 참조</td><td>제안과 허용 범위 검사 결과 — 실행하지 않는다</td><td>에이전트</td></tr>
+<tr><td class="mono">execute_sim_action</td><td class="mono">event_id, 승인 ID, 조치값</td><td>승인 테이블 기록을 검사한 뒤 실행하고 결과 기록</td><td>오케스트레이션(승인 후)</td></tr>
+<tr><td class="mono">verify_recovery</td><td class="mono">조치 ID, 재측정 기간</td><td>회복 · 미개선 · 데이터 부족</td><td>오케스트레이션</td></tr>
+</tbody></table></div>

@@ -1,0 +1,12 @@
+
+body{font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;max-width:980px;margin:0 auto;padding:40px 28px 80px;color:#18212f;line-height:1.75;font-size:16px;background:#fcfcfb}
+h1{font-size:30px;border-bottom:3px solid #2a78d6;padding-bottom:10px;margin-top:0}h2{font-size:23px;margin-top:44px;border-left:6px solid #2a78d6;padding-left:12px}
+h3{font-size:18px;margin-top:28px;color:#1e3a8a}table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px;display:block;overflow-x:auto}
+th,td{border:1px solid #e2e8f0;padding:7px 10px;vertical-align:top}th{background:#f1f5f9}img{max-width:100%;border:1px solid #e2e8f0;border-radius:10px;margin:10px 0;background:#fff}
+figure{margin:18px 0}figcaption{color:#64748b;font-size:13.5px;text-align:center}
+pre{background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:13.5px;line-height:1.5}code{font-family:ui-monospace,Menlo,monospace;font-size:.92em}
+p code,li code,td code{background:#eef2ff;color:#3730a3;padding:1px 5px;border-radius:5px}
+blockquote{border-left:4px solid #f59e0b;background:#fffbeb;margin:14px 0;padding:10px 16px;border-radius:0 10px 10px 0}
+nav#TOC{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 20px;font-size:14px}nav#TOC ul{padding-left:18px}
+.back{font-size:14px}
+@media print{body{max-width:none;padding:0 8mm}pre{white-space:pre-wrap}h2{page-break-after:avoid}img{page-break-inside:avoid}}

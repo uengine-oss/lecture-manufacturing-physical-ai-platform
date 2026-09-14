@@ -1,0 +1,19 @@
+practical/S01 | solution: 3 passed in 0.26s | starter: 3 failed in 0.31s
+practical/S02 | solution: 8 passed in 0.24s | starter: 7 failed, 1 passed in 0.28s
+practical/S03 | solution: 6 passed in 0.31s | starter: 5 failed, 1 passed in 0.36s
+practical/S04 | solution: 9 passed in 0.29s | starter: 8 failed, 1 passed in 0.31s
+practical/S05 | solution: 13 passed in 0.32s | starter: 10 failed, 3 passed in 0.37s
+practical/S06 | solution: 10 passed in 0.57s | starter: 8 failed, 2 passed in 0.73s
+practical/S07 | solution: 19 passed in 0.38s | starter: 7 failed, 12 passed in 0.41s
+practical/S08 | solution: 10 passed in 0.04s | starter: 6 failed, 4 passed in 0.07s
+practical/S09 | solution: 20 passed in 0.17s | starter: 16 failed, 4 passed in 0.12s
+integrated/S01 | solution: 4 passed in 4.06s | starter: 4 failed in 4.09s
+integrated/S02 | solution: 5 passed in 0.32s | starter: 3 failed, 2 errors in 0.28s
+integrated/S03 | solution: 5 passed in 0.33s | starter: 5 failed in 0.38s
+integrated/S04 | solution: 16 passed in 0.22s | starter: 16 failed in 0.23s
+integrated/S05 | solution: 18 passed in 0.30s | starter: 15 failed, 3 passed in 0.37s
+integrated/S06 | solution: 24 passed in 0.45s | starter: 20 failed, 4 passed in 0.46s
+integrated/S07 | solution: 7 passed in 0.25s | starter: 7 failed in 0.18s
+integrated/S08 | solution: 9 passed in 0.37s | starter: 9 failed in 0.26s
+integrated/S09 | solution: 6 passed in 1.90s | starter: 6 failed in 0.13s
+integrated/S10 | solution: 9 passed in 1.79s | starter: 9 failed in 0.19s

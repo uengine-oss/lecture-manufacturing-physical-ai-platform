@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const n = await b.newPage({ viewport: { width: 1480, height: 950 } });
+await n.goto('http://localhost:57474/browser/'); await n.waitForTimeout(3500);
+await n.getByLabel('Connection URL').fill('localhost:57687').catch(async () => { await n.locator('input').nth(0).fill('localhost:57687'); });
+await n.getByLabel('Database user').fill('neo4j').catch(() => {});
+await n.getByLabel('Password').fill('hydops-lecture');
+await n.getByRole('button', { name: 'Connect', exact: true }).last().click();
+await n.waitForTimeout(6000);
+await n.screenshot({ path: '/tmp/neo4j_after_login.png' });
+await n.mouse.click(900, 60); await n.waitForTimeout(500); await n.keyboard.type("MATCH p=(s:SOP {status:'active'})-[:APPLIES_TO]->(a:Asset)-[:HAS_SENSOR]->(:Sensor) RETURN p", { delay: 3 });
+await n.keyboard.press('Escape'); await n.keyboard.press('Meta+Enter'); await n.waitForTimeout(7000); await n.mouse.click(1300, 500);
+await n.screenshot({ path: '/Users/uengine/uengine-platform/lecture/materials/screenshots/S07_neo4j_browser_graph.png' });
+console.log('ok');
+await b.close();

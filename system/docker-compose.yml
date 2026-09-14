@@ -1,0 +1,49 @@
+# 강의용 실습 환경
+# - DB 는 PostgreSQL 과 Neo4j 두 개로 제한한다 (실라버스 '데이터 저장과 온톨로지 설계')
+# - hydops-api : B1~B9 로컬 블록 + MCP 도구 (:8800)
+# - lab-platform: 교육용 플랫폼 — Data Fabric · Ontology Studio · Agents · Process · Apps (:8910)
+#   docker compose up -d                 → DB 만 (1~5회차 로컬 실습, 노트북에서 python 실행)
+#   docker compose --profile app up -d   → DB + 두 서버 (6회차 이후, 시연)
+name: hydops-lecture
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hydops-postgres
+    environment: {POSTGRES_USER: hydops, POSTGRES_PASSWORD: hydops, POSTGRES_DB: hydops}
+    ports: ["55432:5432"]
+    volumes: ["./sql:/docker-entrypoint-initdb.d:ro", "hydops-pg:/var/lib/postgresql/data"]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U hydops"], interval: 5s, retries: 20}
+  neo4j:
+    image: neo4j:5
+    container_name: hydops-neo4j
+    environment: {NEO4J_AUTH: neo4j/hydops-lecture}
+    ports: ["57474:7474", "57687:7687"]
+    volumes: ["hydops-neo4j:/data"]
+    healthcheck: {test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"], interval: 5s, retries: 30}
+  hydops-api:
+    profiles: [app]
+    build: .
+    image: hydops-lecture:latest
+    command: ["uvicorn", "hydops.b9_dashboard.app:app", "--host", "0.0.0.0", "--port", "8800"]
+    env_file: [{path: .env, required: false}]
+    environment:
+      HYDOPS_PG_DSN: postgresql://hydops:hydops@postgres:5432/hydops
+      HYDOPS_NEO4J_URI: bolt://neo4j:7687
+      ORCHESTRATION: ${ORCHESTRATION:-local}
+      SPEED: ${SPEED:-2}
+    ports: ["8800:8800"]
+    depends_on: {postgres: {condition: service_healthy}, neo4j: {condition: service_healthy}}
+  lab-platform:
+    profiles: [app]
+    image: hydops-lecture:latest
+    command: ["uvicorn", "labplatform.main:app", "--host", "0.0.0.0", "--port", "8910"]
+    env_file: [{path: .env, required: false}]
+    environment:
+      LAB_PG_DSN: postgresql://hydops:hydops@postgres:5432/hydops
+      LAB_NEO4J_URI: bolt://neo4j:7687
+      HYDOPS_API: http://hydops-api:8800
+    ports: ["8910:8910"]
+    depends_on: {hydops-api: {condition: service_started}}
+volumes:
+  hydops-pg: {}
+  hydops-neo4j: {}

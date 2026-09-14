@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const out = process.argv[2];
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1440, height: 950 } });
+const shot = async n => p.screenshot({ path: `${out}/${n}.png`, fullPage: true });
+await p.goto('http://localhost:8910/console/#home'); await p.waitForTimeout(1500); await shot('p01-home');
+await p.click('[data-testid=tab-fabric]'); await p.waitForTimeout(1200); await shot('p02-fabric');
+await p.click('[data-testid=tab-studio]'); await p.waitForSelector('[data-testid=class-table]'); await p.click('[data-testid=fetch]'); await p.waitForSelector('[data-testid=objects]');
+await p.click('[data-testid=golden]'); await p.waitForSelector('[data-testid=golden-row]'); await p.waitForTimeout(800); await shot('p03-studio');
+await p.click('[data-testid=tab-agents]'); await p.waitForSelector('[data-testid=mcp-tool]', { timeout: 20000 }); await p.click('[data-testid=call-tool]'); await p.waitForSelector('[data-testid=tool-result]'); await shot('p04-agents');
+await p.click('[data-testid=tab-process]'); await p.waitForTimeout(1500); const inst = await p.$('[data-testid=instance]'); if (inst) { await inst.click(); await p.waitForSelector('[data-testid=instance-detail]'); } await shot('p05-process');
+await p.click('[data-testid=tab-apps]'); await p.waitForSelector('[data-testid=app]'); await shot('p06-apps');
+await p.goto('http://localhost:8910/apps/hydops-ops/'); await p.waitForSelector('[data-testid=app-event]', { timeout: 20000 }); await p.click('[data-testid=app-event]'); await p.waitForSelector('[data-testid=app-detail]'); await p.waitForTimeout(2500); await shot('p07-app');
+console.log('same-event:', await p.$eval('[data-testid=same-event]', e => e.innerText.replace(/\n/g, ' | ')));
+await b.close();

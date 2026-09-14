@@ -1,0 +1,18 @@
+✓ 관제 화면 렌더(722자)
+✓ 로컬 오케스트레이션 모드
+✓ 센서 오류 → 센서 점검 제안
+✓ 에이전트 도구 호출 get_asset_context→get_recent_window→search_sop→search_sop→propose_action
+✓ 부하 감소 제안
+✓ SOP 인용 4건
+✓ 명령 성공 기록
+✓ 재측정 회복 판정
+✓ 흐름 종결
+✓ 플랫폼 오케스트레이션 모드 전환
+✓ Ontology Studio 렌더(1712자)
+✓ 스키마 발행됨
+✓ Golden Question 3/3
+✓ Watch → 업무 시작
+✓ 폼에 event_id 보존
+✓ 제안 조치 매핑
+✓ 인스턴스 PI-e43140f2 COMPLETED · 설비 RECOVERED
+✓ 같은 사건 3중 확인

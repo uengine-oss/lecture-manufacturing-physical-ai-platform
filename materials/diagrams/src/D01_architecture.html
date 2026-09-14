@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>완성 시스템 아키텍처 — 교육용 블록 B1~B9 와 플랫폼 계층</h1>
+<p class="sub">수업의 기준 구조: Data Sources → Ontology → Agents → Orchestration. 왼쪽은 초반(로컬 구현), 오른쪽은 후반(교육용 플랫폼 연결).</p>
+<style>
+.row{display:grid;grid-template-columns:170px 1fr 330px;gap:14px;align-items:stretch;margin-bottom:12px}
+.lay{border:1.5px solid;border-radius:14px;padding:14px;display:flex;flex-direction:column;justify-content:center}
+.lay b{font-size:19px}.lay span{font-size:12.5px;color:#52514e}
+.mid{border:1.5px solid;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.plat{border:1.5px dashed #b9a7e6;border-radius:14px;padding:12px 14px;background:#fff;font-size:13.5px}
+.plat b{display:block;font-size:15px;margin-bottom:4px;color:#4a3aa7}.plat em{font-style:normal;color:#52514e;font-size:12px}
+.loop{margin-top:14px;border-radius:14px;background:#0f1b2d;color:#e5edf7;padding:14px 18px;display:flex;gap:24px;align-items:center;font-size:15px}
+.loop b{color:#7dd3fc}.keys{margin-left:auto;font-size:13px;color:#b7c3d4}
+</style>
+<div class="row"><div class="lay l1"><b>Data Sources</b><span>데이터 연결</span></div>
+ <div class="mid l1"><div class="blk">B1 데이터·시뮬레이터<small>UCI 재생 · 상태 시뮬레이터</small></div><span class="arrow">→</span><div class="blk">B2 품질 검사<small>결측·급등·고착 플래그</small></div><span class="arrow">→</span><div class="blk">B3 PostgreSQL<small>observation · event · action_log</small></div></div>
+ <div class="plat"><b>Lab Platform · Data Fabric</b>교육용 DB 등록 · 메타데이터 추출 · 읽기 전용 질의<br><em>실제 플랫폼: Data Fabric 데이터소스</em></div></div>
+<div class="row"><div class="lay l2"><b>Ontology</b><span>업무 의미</span></div>
+ <div class="mid l2"><div class="blk">B4 Neo4j 설비 관계<small>Asset·Sensor·SOP·Action</small></div><span class="arrow">+</span><div class="blk">B6 SOP 근거·Skill 지침<small>Neo4jVector 검색 · SKILL.md</small></div></div>
+ <div class="plat"><b>Lab Platform · Ontology Studio</b>클래스·관계·Behavior 매핑 → 발행 → 객체 조회 · Golden Question<br><em>실제 플랫폼: Ontology Studio 발행</em></div></div>
+<div class="row"><div class="lay l3"><b>Agents</b><span>동적 운영</span></div>
+ <div class="mid l3"><div class="blk">B5 수치 탐지 서비스<small>규칙 · 이동 통계 · 지속 조건</small></div><span class="arrow">+</span><div class="blk">B7 LangChain 운영 에이전트<small>도구 4종 · 할당 Skill · 구조화 제안</small></div></div>
+ <div class="plat"><b>Lab Platform · Agents</b>Skill 할당 · MCP 도구 서버 · 업무 에이전트 · Watch Agent<br><em>실제 플랫폼: Process GPT 에이전트 · Ontologic 감시</em></div></div>
+<div class="row"><div class="lay l4"><b>Orchestration</b><span>업무 흐름</span></div>
+ <div class="mid l4"><div class="blk">B8 승인·조치·재측정<small>LangGraph · 승인 interrupt · 중복 키</small></div><span class="arrow">+</span><div class="blk">B9 관제 화면<small>같은 event_id 의 전체 기록</small></div></div>
+ <div class="plat"><b>Lab Platform · Process + Apps</b>접수→제안→사람 승인→조치→재점검 · 관제 앱 게시<br><em>실제 플랫폼: Process GPT 프로세스 · 아이나루 앱</em></div></div>
+<div class="loop"><span><b>재측정 루프</b> B8 조치 → B1 새 상태 → B2·B3 새 관측 → B5 회복 판정</span><span class="keys">공통 연결 키 <span class="mono">asset_id · event_id · run_id</span> &nbsp;|&nbsp; Skill 은 B7 에서 실행 시 로드</span></div>
+</div>

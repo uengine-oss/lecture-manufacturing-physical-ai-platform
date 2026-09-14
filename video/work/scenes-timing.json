@@ -1,0 +1,87 @@
+[
+  {
+    "scene": 1,
+    "start_sec": 2.16,
+    "title": "사건 하나"
+  },
+  {
+    "scene": 2,
+    "start_sec": 26.91,
+    "title": "데이터를 같은 말로"
+  },
+  {
+    "scene": 3,
+    "start_sec": 52.91,
+    "title": "센서 오류와 설비 이상"
+  },
+  {
+    "scene": 4,
+    "start_sec": 75.61,
+    "title": "설비와 매뉴얼의 관계"
+  },
+  {
+    "scene": 5,
+    "start_sec": 103.11,
+    "title": "관제 화면"
+  },
+  {
+    "scene": 6,
+    "start_sec": 123.76,
+    "title": "센서가 끊겼을 때"
+  },
+  {
+    "scene": 7,
+    "start_sec": 144.16,
+    "title": "냉각 성능 저하"
+  },
+  {
+    "scene": 8,
+    "start_sec": 161.82,
+    "title": "근거를 찾는 에이전트"
+  },
+  {
+    "scene": 9,
+    "start_sec": 187.12,
+    "title": "사람의 승인과 실행"
+  },
+  {
+    "scene": 10,
+    "start_sec": 207.62,
+    "title": "새 관측으로 종결"
+  },
+  {
+    "scene": 11,
+    "start_sec": 230.72,
+    "title": "잘 안 될 때의 갈래"
+  },
+  {
+    "scene": 12,
+    "start_sec": 258.42,
+    "title": "감지는 평가로 확인"
+  },
+  {
+    "scene": 13,
+    "start_sec": 294.92,
+    "title": "플랫폼의 지식 계층"
+  },
+  {
+    "scene": 14,
+    "start_sec": 317.22,
+    "title": "업무 에이전트와 도구"
+  },
+  {
+    "scene": 15,
+    "start_sec": 336.27,
+    "title": "업무 흐름 속의 승인"
+  },
+  {
+    "scene": 16,
+    "start_sec": 377.28,
+    "title": "업무 완료와 설비 회복"
+  },
+  {
+    "scene": 17,
+    "start_sec": 396.88,
+    "title": "이 과정에서 만드는 것"
+  }
+]

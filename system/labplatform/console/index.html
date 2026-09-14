@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lab Platform 콘솔</title>
+<link rel="stylesheet" href="console.css" />
+<script src="vue.global.prod.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+  <aside class="nav">
+    <div class="brand"><div class="logo">LP</div><div><b>Lab Platform</b><small>교육용 플랫폼 콘솔</small></div></div>
+    <a v-for="t in tabs" :key="t.id" :class="{on: tab===t.id}" @click="go(t.id)" :data-testid="'tab-'+t.id">
+      <span class="layer">{{ t.layer }}</span>{{ t.label }}
+    </a>
+    <div class="navfoot">실제 플랫폼을 수업용으로 재현한 환경입니다.<br/>대응 기능은 각 화면 상단에 표시됩니다.</div>
+  </aside>
+
+  <main class="main">
+    <!-- 개요 -->
+    <section v-if="tab==='home'">
+      <h1>플랫폼 계층과 연결 상태</h1>
+      <p class="lead">Data Sources → Ontology → Agents → Orchestration. 각 계층의 교육용 모듈이 로컬 블록 B1~B9 를 어떻게 이어받는지 봅니다.</p>
+      <div class="layers">
+        <div class="layer-card l1"><h3>Data Sources</h3><p>B1 → B2 → B3</p><b>{{ overview.datasources }}</b><span>등록 데이터소스</span><em>대응: Data Fabric</em></div>
+        <div class="layer-card l2"><h3>Ontology</h3><p>B4 + B6</p><b>{{ overview.published }}/{{ overview.schemas }}</b><span>발행된 스키마</span><em>대응: Ontology Studio</em></div>
+        <div class="layer-card l3"><h3>Agents</h3><p>B5 + B7</p><b>{{ overview.agents }}</b><span>업무 에이전트 · Skill {{ overview.skills }}</span><em>대응: Process GPT 에이전트 · Ontologic 감시</em></div>
+        <div class="layer-card l4"><h3>Orchestration</h3><p>B8 + B9</p><b>{{ overview.instances }}</b><span>업무 인스턴스 · 앱 {{ overview.apps }}</span><em>대응: Process GPT 프로세스 · 아이나루 앱</em></div>
+      </div>
+    </section>
+
+    <!-- Data Fabric -->
+    <section v-if="tab==='fabric'">
+      <h1>Data Fabric <span class="map">대응: Data Fabric 데이터소스</span></h1>
+      <div class="card" v-for="d in datasources" :key="d.name" data-testid="datasource">
+        <div class="row"><b>{{ d.name }}</b><span class="pill">{{ d.engine }}</span><span class="muted">{{ d.parameters.user }}@{{ d.parameters.host }}:{{ d.parameters.port }}/{{ d.parameters.database }}</span><span class="muted">{{ d.server_version }}</span></div>
+        <p class="muted">{{ d.description }}</p>
+        <div v-if="d.metadata" class="tables">
+          <div v-for="(cols,t) in d.metadata.tables" :key="t" class="tbl"><b>{{ t }}</b><span class="muted">{{ cols.map(c=>c.name).join(', ') }}</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>읽기 전용 질의</h3>
+        <textarea v-model="sql" rows="3" class="code"></textarea>
+        <div class="row"><button class="primary" @click="runSql">실행</button><span class="muted">쓰기 문장은 거부됩니다.</span></div>
+        <table v-if="sqlRows.length" class="grid"><thead><tr><th v-for="k in Object.keys(sqlRows[0])" :key="k">{{ k }}</th></tr></thead>
+          <tbody><tr v-for="(r,i) in sqlRows" :key="i"><td v-for="k in Object.keys(sqlRows[0])" :key="k">{{ fmt(r[k]) }}</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <!-- Ontology Studio -->
+    <section v-if="tab==='studio'">
+      <h1>Ontology Studio <span class="map">대응: Ontology Studio 클래스·관계·Behavior 발행</span></h1>
+      <div class="card" v-for="s in schemas" :key="s.schema_name">
+        <div class="row">
+          <b class="big">{{ s.schema_name }}</b>
+          <span class="pill" :class="s.published_version ? 'ok' : 'warn'" data-testid="publish-state">{{ s.published_version ? '발행 v'+s.published_version : '미발행' }}</span>
+          <span v-if="s.dirty && s.published_version" class="pill warn">변경 있음</span>
+          <span class="spacer"></span>
+          <button @click="validate(s.schema_name)">검증</button>
+          <button class="primary" @click="publish(s.schema_name)" data-testid="publish">발행</button>
+        </div>
+        <p class="muted">{{ s.description }}</p>
+        <div v-if="validation" class="note" :class="validation.ok?'good':'bad'">검증 {{ validation.ok ? '통과' : '실패' }} <span v-for="p in validation.problems" :key="p"> · {{ p }}</span></div>
+        <div v-if="publishResult" class="note good" data-testid="publish-result">발행 v{{ publishResult.published_version }} — 클래스 {{ publishResult.classes }} · 관계 {{ publishResult.relationships }}</div>
+      </div>
+      <div class="cols" v-if="schema">
+        <div class="card">
+          <h3>클래스 매핑</h3>
+          <table class="grid" data-testid="class-table"><thead><tr><th>클래스</th><th>바인딩</th><th>원천</th><th>속성</th></tr></thead>
+            <tbody><tr v-for="c in schema.classes" :key="c.name" @click="objClass=c.name" :class="{sel: objClass===c.name}">
+              <td><b>{{ c.name }}</b><div class="muted tiny">{{ c.description }}</div></td>
+              <td><span class="pill" :class="c.binding.kind==='graph'?'g':'v'">{{ c.binding.kind==='graph'?'그래프':'가상 연결' }}</span></td>
+              <td class="mono tiny">{{ c.binding.label || (c.binding.datasource+'.'+c.binding.table) }}</td>
+              <td class="tiny">{{ c.properties.map(p=>p.key?'🔑'+p.name:p.name).join(', ') }}</td></tr></tbody></table>
+          <h3 class="mt">관계</h3>
+          <div class="rels"><span v-for="r in schema.relationships" :key="r.name" class="rel">{{ r.from }} —<b>{{ r.name }}</b>→ {{ r.to }} <small>{{ r.via.kind==='graph'?'그래프':'조인' }}</small></span></div>
+        </div>
+        <div class="card">
+          <h3>객체 조회</h3>
+          <div class="row">
+            <select v-model="objClass"><option v-for="c in schema.classes" :key="c.name">{{ c.name }}</option></select>
+            <input v-model="objKey" placeholder="속성" style="width:110px" /><input v-model="objVal" placeholder="값" style="width:200px" data-testid="obj-value" />
+            <button class="primary" @click="fetchObjects" data-testid="fetch">조회</button>
+          </div>
+          <div v-if="objError" class="note bad">{{ objError }}</div>
+          <div v-if="objResult" class="muted tiny">v{{ objResult.published_version }} · {{ objResult.binding_kind }} · {{ objResult.count }}건 <b v-if="objResult.note" class="warn-t">{{ objResult.note }}</b></div>
+          <div class="scroll"><table v-if="objResult && objResult.objects.length" class="grid" data-testid="objects"><thead><tr><th v-for="k in Object.keys(objResult.objects[0])" :key="k">{{ k }}</th></tr></thead>
+            <tbody><tr v-for="(o,i) in objResult.objects" :key="i"><td v-for="k in Object.keys(objResult.objects[0])" :key="k">{{ fmt(o[k]) }}</td></tr></tbody></table></div>
+          <h3 class="mt">Golden Question 검증</h3>
+          <div class="row"><input v-model="gqAsset" style="width:90px" /><input v-model="gqEvent" placeholder="event_id" style="width:280px" /><button @click="runGolden" data-testid="golden">실행</button></div>
+          <div v-for="g in golden" :key="g.question" class="gq" :class="g.answered?'good':'bad'" data-testid="golden-row">
+            <b>{{ g.answered ? '✔' : '✘' }} {{ g.question }}</b>
+            <div v-for="s in g.steps" :key="s.step" class="tiny">· {{ s.step }} — {{ s.error ? '오류: '+JSON.stringify(s.error) : s.count+'건' }} <span class="muted">{{ s.sample && s.sample[0] ? short(s.sample[0]) : '' }}</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agents -->
+    <section v-if="tab==='agents'">
+      <h1>Agents <span class="map">대응: Process GPT 업무 에이전트 · Ontologic Watch Agent</span></h1>
+      <div class="cols">
+        <div class="card">
+          <h3>업무 에이전트</h3>
+          <div v-for="a in agentsList" :key="a.agent_id" class="agent" data-testid="agent">
+            <div class="row"><b>{{ a.name }}</b><span class="mono tiny muted">{{ a.agent_id }} · {{ a.model }}</span></div>
+            <div class="tiny">할당 Skill: <span v-for="s in a.skills" :key="s" class="pill g">{{ s }}</span></div>
+            <div class="tiny">MCP: {{ a.mcp_servers.join(', ') }} · 허용 도구: <span v-for="t in a.allowed_tools" :key="t" class="pill">{{ t }}</span></div>
+          </div>
+          <h3 class="mt">Skill</h3>
+          <div v-for="s in skills" :key="s.name" class="skill"><b>{{ s.name }}</b> <span class="muted tiny">v{{ s.version }} · {{ s.chars }}자</span><div class="tiny">{{ s.description }}</div>
+            <button class="tiny-btn" @click="openSkill(s.name)">SKILL.md 보기</button></div>
+          <pre v-if="skillText" class="code pre">{{ skillText }}</pre>
+        </div>
+        <div class="card">
+          <h3>MCP 도구 서버</h3>
+          <div v-for="m in mcpServers" :key="m.name"><b>{{ m.name }}</b> <span class="mono tiny">{{ m.type }} {{ m.url }}</span></div>
+          <div class="toollist">
+            <div v-for="t in tools" :key="t.name" class="tool" @click="toolName=t.name; toolArgs=sampleArgs(t)" data-testid="mcp-tool"><b class="mono">{{ t.name }}</b><span class="tiny muted">{{ t.description }}</span></div>
+          </div>
+          <div class="row"><select v-model="toolName"><option v-for="t in tools" :key="t.name">{{ t.name }}</option></select><button class="primary" @click="callTool" data-testid="call-tool">조회 호출</button></div>
+          <textarea v-model="toolArgs" rows="3" class="code"></textarea>
+          <pre v-if="toolResult" class="code pre" data-testid="tool-result">{{ toolResult }}</pre>
+          <h3 class="mt">Watch Agent</h3>
+          <div v-for="w in watches" :key="w.watch_id" class="watch">
+            <div class="row"><b>{{ w.watch_id }}</b><span class="pill" :class="w.enabled?'ok':'warn'">{{ w.enabled ? '감시 중' : '중지' }}</span><span class="spacer"></span><button @click="tickWatch(w.watch_id)" data-testid="watch-tick">한 번 실행</button><button @click="toggleWatch(w)">{{ w.enabled?'중지':'시작' }}</button></div>
+            <div class="mono tiny code">{{ w.sql }}</div>
+            <div class="tiny">조건 <b>{{ w.condition }}</b> → 업무 <b>{{ w.process_def_id }}</b> · 매핑 {{ short(w.param_map) }}</div>
+          </div>
+          <div v-if="watchResult" class="note" :class="watchResult.fired?'good':''">rows={{ watchResult.rows }} · fired={{ watchResult.fired }} <span v-if="watchResult.started">→ {{ watchResult.started.duplicate ? '중복 거부 ' : '시작 ' }}{{ watchResult.started.instance_id }}</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section v-if="tab==='process'">
+      <h1>Processes <span class="map">대응: Process GPT 프로세스 · 워크리스트</span></h1>
+      <div class="card" v-for="d in definitions" :key="d.def_id">
+        <div class="row"><b class="big">{{ d.name }}</b><span class="mono tiny muted">{{ d.def_id }} v{{ d.version }}</span></div>
+        <div class="chain"><span v-for="a in d.activities.filter(x=>x.type!=='end')" :key="a.id" class="act" :class="'t-'+a.type">{{ a.name }}<small>{{ typeKo(a.type) }}</small></span></div>
+      </div>
+      <div class="cols">
+        <div class="card">
+          <h3>워크리스트 <span class="muted tiny">사람 태스크</span></h3>
+          <div v-if="!worklist.length" class="muted">대기 중인 태스크가 없습니다.</div>
+          <div v-for="w in worklist" :key="w.workitem_id" class="work" data-testid="workitem">
+            <div class="row"><b>{{ w.activity }}</b><span class="pill warn">{{ w.role }}</span><span class="mono tiny">{{ w.event_id }}</span></div>
+            <div class="form">
+              <label v-for="f in w.form" :key="f.name" :class="{ro: f.readonly}">
+                <span>{{ f.label }}</span>
+                <template v-if="f.readonly">
+                  <div v-if="f.type==='citations'" class="cites"><span v-for="c in (f.value||[])" :key="c.doc_id+c.section" class="pill g">{{ c.doc_id }} v{{ c.version }} §{{ c.section }}</span></div>
+                  <div v-else class="ro-v" :data-testid="'ro-'+f.name">{{ fmt(f.value) }}</div>
+                </template>
+                <select v-else-if="f.type==='select'" v-model="drafts[w.workitem_id][f.name]" :data-testid="'f-'+f.name"><option v-for="o in f.options" :key="o">{{ o }}</option></select>
+                <textarea v-else-if="f.type==='textarea'" v-model="drafts[w.workitem_id][f.name]" rows="2"></textarea>
+                <input v-else v-model="drafts[w.workitem_id][f.name]" :type="f.type==='number'?'number':'text'" step="0.05" :data-testid="'f-'+f.name" />
+              </label>
+            </div>
+            <div class="row"><button class="primary" @click="completeWork(w)" data-testid="complete">제출</button><span class="muted tiny">승인 기록이 조치 도구의 실행 조건이 됩니다.</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>업무 인스턴스</h3>
+          <div v-for="i in instances" :key="i.instance_id" class="inst" :class="{sel: i.instance_id===instanceId}" @click="openInstance(i.instance_id)" data-testid="instance">
+            <div class="row"><span class="pill" :class="i.status==='COMPLETED'?'ok':i.status==='FAILED'?'bad':'run'">{{ i.status }}</span><b>{{ i.current }}</b><span class="tiny muted">{{ i.current_status }}</span></div>
+            <div class="mono tiny muted">{{ i.instance_id }} · {{ i.event_id }} <span v-if="i.equipment_outcome">· 설비 {{ i.equipment_outcome }}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" v-if="instance" data-testid="instance-detail">
+        <div class="row"><h3>{{ instance.def_name }} · {{ instance.instance_id }}</h3><span class="pill">{{ instance.status }}</span>
+          <span class="pill" v-if="instance.business_result">업무 결과: {{ instance.business_result }}</span>
+          <span class="pill" :class="instance.equipment_outcome==='RECOVERED'?'ok':'warn'">설비 재측정: {{ instance.equipment_outcome || '없음' }}</span></div>
+        <div class="muted tiny">인스턴스 키 {{ instance.key }} — 업무 완료 상태는 설비 회복을 대체하지 않습니다.</div>
+        <div class="steps">
+          <div v-for="(s,i) in instance.steps" :key="i" class="step" :class="'s-'+s.status">
+            <div class="row"><span class="num">{{ i+1 }}</span><b>{{ s.name }}</b><span class="pill">{{ typeKo(s.type) }}</span><span class="tiny">{{ s.status }}</span><span class="tiny muted">{{ (s.started_at||'').slice(11,19) }}</span></div>
+            <div v-if="s.error" class="note bad">{{ s.error }}</div>
+            <div v-if="s.type==='agent' && s.output" class="tiny">
+              <b>{{ s.output.proposal?.decision }}</b> {{ s.output.proposal?.action_id }} {{ s.output.proposal?.value }} · {{ s.output.elapsed_s }}s ·
+              도구 <span v-for="(t,k) in s.output.tool_trace" :key="k" class="pill">{{ t.tool }}</span>
+            </div>
+            <details v-if="s.input || s.output"><summary class="tiny">입력·출력</summary><pre class="code pre">{{ JSON.stringify({input:s.input, output:s.output}, null, 1) }}</pre></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Apps -->
+    <section v-if="tab==='apps'">
+      <h1>Apps <span class="map">대응: 아이나루 앱 게시</span></h1>
+      <div class="card">
+        <h3>앱 게시</h3>
+        <div class="row"><input v-model="appName" style="width:160px" /><select v-model="appTpl"><option v-for="t in appTemplates" :key="t">{{ t }}</option></select><button class="primary" @click="publishApp" data-testid="publish-app">게시</button></div>
+        <div class="muted tiny">바인딩: hydops_api=http://localhost:8800 · platform_api=http://localhost:8910 · schema=HydraulicOps · process=cooling_response</div>
+      </div>
+      <div class="card" v-for="a in appsList" :key="a.name" data-testid="app">
+        <div class="row"><b class="big">{{ a.name }}</b><span class="pill" :class="a.status==='PUBLISHED'?'ok':'warn'">{{ a.status }}</span><a :href="a.url" target="_blank" class="mono" data-testid="app-url">{{ location.origin }}{{ a.url }}</a></div>
+        <div class="log"><div v-for="s in a.steps" :key="s.at+s.message" class="tiny"><span class="mono muted">{{ s.at.slice(11,19) }}</span> {{ s.message }}</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="console.js"></script>
+</body>
+</html>

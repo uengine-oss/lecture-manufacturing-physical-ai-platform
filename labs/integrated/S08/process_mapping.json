@@ -1,0 +1,39 @@
+{
+  "def_id": "____",
+  "instance_key": "____",
+  "watch_param_map": {
+    "event_id": "${row.____}",
+    "asset_id": "${row.____}",
+    "run_id": "${row.____}",
+    "event_type": "${row.____}"
+  },
+  "intake_required_fields": ["event_id", "asset_id", "____", "____"],
+  "approve_form": {
+    "role": "____",
+    "readonly_defaults": {
+      "event_id": "${____}",
+      "asset_id": "${____}",
+      "run_id": "${____}",
+      "action_id": "${____}",
+      "proposed_value": "${____}",
+      "citations": "${____}"
+    },
+    "decision_options": ["____", "____"],
+    "approved_value_default": "${____}"
+  },
+  "record_decision_body": {
+    "approver": "${approver}",
+    "decision": "${decision}",
+    "value": "${____}"
+  },
+  "act": {
+    "tool": "____",
+    "args": {
+      "event_id": "${event_id}",
+      "approval_id": "${____}",
+      "action_id": "${action_id}",
+      "value": "${____}"
+    }
+  },
+  "to_act_when_decision": "____"
+}

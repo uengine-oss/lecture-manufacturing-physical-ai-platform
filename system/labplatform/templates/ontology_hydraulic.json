@@ -1,0 +1,84 @@
+{
+  "schema_name": "HydraulicOps",
+  "description": "유압설비 냉각 이상 대응 — 설비·문서 지식은 그래프, 수치·실행 이력은 원천 DB 가상 연결 (교육용)",
+  "golden_questions": [
+    {
+      "question": "HYD-01의 최근 온도는 유효한 센서 관측이며 지속 이상인가?",
+      "steps": [
+        {"label": "설비의 센서 찾기 (그래프)", "op": "related", "class": "Asset", "relationship": "HAS_SENSOR", "args": {"key": "$asset_id"}},
+        {"label": "최근 60초 상태 (Behavior, 원천 DB)", "op": "behavior", "class": "Asset", "behavior": "recent_state", "args": {"asset_id": "$asset_id"}}
+      ]
+    },
+    {
+      "question": "이 설비에 적용되는 최신 냉각 이상 SOP와 허용 조치는 무엇인가?",
+      "steps": [
+        {"label": "적용 SOP (active 만)", "op": "related", "class": "Asset", "relationship": "GOVERNED_BY", "args": {"key": "$asset_id"}},
+        {"label": "그 SOP 들 가운데 냉각 이상 SOP 가 허용하는 조치", "op": "related_chain", "class": "Asset", "path": ["GOVERNED_BY", "ALLOWS"], "where": {"SOP": {"event_type": "COOLING_ANOMALY"}}, "args": {"key": "$asset_id"}}
+      ]
+    },
+    {
+      "question": "어떤 근거로 누가 승인했으며 조치 후 새 관측은 회복했는가?",
+      "steps": [
+        {"label": "사건", "op": "fetch", "class": "Event", "args": {"event_id": "$event_id"}},
+        {"label": "승인", "op": "related", "class": "Event", "relationship": "HAS_APPROVAL", "args": {"key": "$event_id"}},
+        {"label": "조치 실행 기록", "op": "related", "class": "Event", "relationship": "HAS_ACTION", "args": {"key": "$event_id"}},
+        {"label": "재측정 판정", "op": "related", "class": "Event", "relationship": "HAS_VERIFICATION", "args": {"key": "$event_id"}}
+      ]
+    }
+  ],
+  "classes": [
+    {"name": "Asset", "description": "Resource 의 수업용 구체 클래스 (유압설비)", "properties": [
+      {"name": "asset_id", "type": "string", "key": true}, {"name": "name", "type": "string"}, {"name": "cooling", "type": "string"}, {"name": "line", "type": "string"}],
+     "binding": {"kind": "graph", "label": "Asset"}},
+    {"name": "Sensor", "description": "Measure — 온도·압력·유량 센서", "properties": [
+      {"name": "sensor_id", "type": "string", "key": true}, {"name": "code", "type": "string"}, {"name": "quantity", "type": "string"}, {"name": "unit", "type": "string"}, {"name": "hz", "type": "int"}],
+     "binding": {"kind": "graph", "label": "Sensor"}},
+    {"name": "SOP", "description": "표준 작업 절차 (문서 ID·버전)", "properties": [
+      {"name": "sop_key", "type": "string", "key": true}, {"name": "doc_id", "type": "string"}, {"name": "version", "type": "int"}, {"name": "title", "type": "string"}, {"name": "status", "type": "string"}, {"name": "event_type", "type": "string"}],
+     "binding": {"kind": "graph", "label": "SOP"}},
+    {"name": "Action", "description": "허용 조치와 값 범위", "properties": [
+      {"name": "action_id", "type": "string", "key": true}, {"name": "name", "type": "string"}, {"name": "min_value", "type": "float"}, {"name": "max_value", "type": "float"}, {"name": "default_value", "type": "float"}, {"name": "requires_approval", "type": "bool"}],
+     "binding": {"kind": "graph", "label": "Action"}},
+    {"name": "Observation", "description": "관측 (가상 연결 — 원천 DB 에 남긴다)", "properties": [
+      {"name": "id", "type": "int", "key": true}, {"name": "run_id", "type": "string"}, {"name": "asset_id", "type": "string"}, {"name": "sensor_id", "type": "string"}, {"name": "ts", "type": "datetime"}, {"name": "value", "type": "float"}, {"name": "unit", "type": "string"}, {"name": "quality_flag", "type": "string"}],
+     "binding": {"kind": "virtual", "datasource": "hydops_edu", "table": "observation", "order_by": "ts", "column_map": [
+       {"property": "id", "column": "id"}, {"property": "run_id", "column": "run_id"}, {"property": "asset_id", "column": "asset_id"}, {"property": "sensor_id", "column": "sensor_id"}, {"property": "ts", "column": "ts"}, {"property": "value", "column": "value"}, {"property": "unit", "column": "unit"}, {"property": "quality_flag", "column": "quality_flag"}]}},
+    {"name": "Event", "description": "이상 사건 (가상 연결)", "properties": [
+      {"name": "event_id", "type": "string", "key": true}, {"name": "run_id", "type": "string"}, {"name": "asset_id", "type": "string"}, {"name": "event_type", "type": "string"}, {"name": "status", "type": "string"}, {"name": "status_reason", "type": "string"}, {"name": "rule_version", "type": "string"}, {"name": "window_start", "type": "datetime"}, {"name": "created_at", "type": "datetime"}],
+     "binding": {"kind": "virtual", "datasource": "hydops_edu", "table": "event", "order_by": "created_at", "column_map": [
+       {"property": "event_id", "column": "event_id"}, {"property": "run_id", "column": "run_id"}, {"property": "asset_id", "column": "asset_id"}, {"property": "event_type", "column": "event_type"}, {"property": "status", "column": "status"}, {"property": "status_reason", "column": "status_reason"}, {"property": "rule_version", "column": "rule_version"}, {"property": "window_start", "column": "window_start"}, {"property": "created_at", "column": "created_at"}]}},
+    {"name": "Approval", "description": "사람 승인 기록 (가상 연결)", "properties": [
+      {"name": "approval_id", "type": "string", "key": true}, {"name": "event_id", "type": "string"}, {"name": "approver", "type": "string"}, {"name": "decision", "type": "string"}, {"name": "approved_value", "type": "float"}, {"name": "decided_at", "type": "datetime"}],
+     "binding": {"kind": "virtual", "datasource": "hydops_edu", "table": "approval", "order_by": "decided_at", "column_map": [
+       {"property": "approval_id", "column": "approval_id"}, {"property": "event_id", "column": "event_id"}, {"property": "approver", "column": "approver"}, {"property": "decision", "column": "decision"}, {"property": "approved_value", "column": "approved_value"}, {"property": "decided_at", "column": "decided_at"}]}},
+    {"name": "ActionLog", "description": "조치 실행 기록 — 명령 결과", "properties": [
+      {"name": "action_log_id", "type": "string", "key": true}, {"name": "event_id", "type": "string"}, {"name": "approval_id", "type": "string"}, {"name": "action_id", "type": "string"}, {"name": "requested_value", "type": "float"}, {"name": "command_status", "type": "string"}, {"name": "executed_at", "type": "datetime"}],
+     "binding": {"kind": "virtual", "datasource": "hydops_edu", "table": "action_log", "order_by": "executed_at", "column_map": [
+       {"property": "action_log_id", "column": "action_log_id"}, {"property": "event_id", "column": "event_id"}, {"property": "approval_id", "column": "approval_id"}, {"property": "action_id", "column": "action_id"}, {"property": "requested_value", "column": "requested_value"}, {"property": "command_status", "column": "command_status"}, {"property": "executed_at", "column": "executed_at"}]}},
+    {"name": "Verification", "description": "재측정 판정 — 설비 회복 결과", "properties": [
+      {"name": "verification_id", "type": "string", "key": true}, {"name": "event_id", "type": "string"}, {"name": "action_log_id", "type": "string"}, {"name": "outcome", "type": "string"}, {"name": "window_start", "type": "datetime"}, {"name": "window_end", "type": "datetime"}],
+     "binding": {"kind": "virtual", "datasource": "hydops_edu", "table": "verification", "order_by": "verified_at", "column_map": [
+       {"property": "verification_id", "column": "verification_id"}, {"property": "event_id", "column": "event_id"}, {"property": "action_log_id", "column": "action_log_id"}, {"property": "outcome", "column": "outcome"}, {"property": "window_start", "column": "window_start"}, {"property": "window_end", "column": "window_end"}]}}
+  ],
+  "relationships": [
+    {"name": "HAS_SENSOR", "from": "Asset", "to": "Sensor", "via": {"kind": "graph", "rel_type": "HAS_SENSOR"}},
+    {"name": "GOVERNED_BY", "from": "Asset", "to": "SOP", "via": {"kind": "graph", "rel_type": "APPLIES_TO", "direction": "in", "where": {"status": "active"}}},
+    {"name": "ALLOWS", "from": "SOP", "to": "Action", "via": {"kind": "graph", "rel_type": "ALLOWS"}},
+    {"name": "HAS_EVENT", "from": "Asset", "to": "Event", "via": {"kind": "join", "from_property": "asset_id", "to_property": "asset_id"}},
+    {"name": "HAS_OBSERVATION", "from": "Asset", "to": "Observation", "via": {"kind": "join", "from_property": "asset_id", "to_property": "asset_id"}},
+    {"name": "HAS_APPROVAL", "from": "Event", "to": "Approval", "via": {"kind": "join", "from_property": "event_id", "to_property": "event_id"}},
+    {"name": "HAS_ACTION", "from": "Event", "to": "ActionLog", "via": {"kind": "join", "from_property": "event_id", "to_property": "event_id"}},
+    {"name": "HAS_VERIFICATION", "from": "Event", "to": "Verification", "via": {"kind": "join", "from_property": "event_id", "to_property": "event_id"}}
+  ],
+  "behaviors": {
+    "Asset": {
+      "recent_state": {
+        "datasource": "hydops_edu",
+        "description": "최근 60초 센서별 유효 통계와 품질 불량 수",
+        "parameters": ["asset_id", "asset_id"],
+        "sql_template": "SELECT sensor_id, unit, count(*) AS samples, round(avg(value)::numeric, 2) AS avg_valid, round(max(value)::numeric, 2) AS max_valid, sum(CASE WHEN quality_flag <> 'OK' THEN 1 ELSE 0 END) AS bad_quality, max(ts) AS last_ts FROM observation WHERE asset_id = %s AND ts > (SELECT max(ts) FROM observation WHERE asset_id = %s) - interval '60 seconds' GROUP BY sensor_id, unit ORDER BY sensor_id",
+        "max_rows": 10
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>회차별 블록 로드맵 — 하나의 시스템에 매 회차 기능을 더한다</h1>
+<p class="sub"><span style="background:#2a78d6;color:#fff;padding:1px 8px;border-radius:6px">구현</span> 새로 만든다 · <span style="background:#c9dcf1;padding:1px 8px;border-radius:6px">확장</span> 조건·연결을 바꾼다 · <span style="background:#6941c6;color:#fff;padding:1px 8px;border-radius:6px">플랫폼</span> 교육용 플랫폼에 연결한다</p>
+<style>table{border-collapse:separate;border-spacing:3px;font-size:13.5px}th{font-weight:700;padding:4px 8px;text-align:left}td{width:62px;height:34px;border-radius:6px;background:#f1f3f6;text-align:center;font-size:12px;font-weight:700}
+td.i{background:#2a78d6;color:#fff}td.e{background:#c9dcf1;color:#1e3a8a}td.p{background:#6941c6;color:#fff}td.ip{background:#6941c6;color:#fff;box-shadow:inset 0 -6px 0 #2a78d6}td.ep{background:#6941c6;color:#fff;box-shadow:inset 0 -6px 0 #c9dcf1}
+th.s{width:360px;font-weight:500;white-space:nowrap}.cls{font-size:17px;margin:14px 0 4px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:28px}</style>
+<div class="g2"><div id="t1"></div><div id="t2"></div></div>
+<script>
+const B=['B1','B2','B3','B4','B5','B6','B7','B8','B9'];
+const P=[['1회 10/31','첫 데이터가 흐르는 시스템',{B1:'i',B2:'i',B3:'i'}],['2회 11/07','노이즈를 구별하는 수집 블록',{B2:'e',B3:'e'}],['3회 11/21','Neo4j로 설비 관계 연결',{B4:'i',B3:'e'}],['4회 11/28','이상 이벤트와 첫 관제 화면',{B5:'i',B9:'i',B2:'e',B3:'e'}],['5회 01/25','SOP와 Skill로 로컬 에이전트',{B6:'i',B7:'i',B4:'e'}],['6회 01/26','플랫폼에서 데이터·온톨로지 발행',{B4:'ep',B7:'e',B3:'p'}],['7회 01/27','Skill과 조치 흐름 연결',{B8:'ip',B6:'ep',B7:'ep'}],['8회 01/28','조치와 재측정 폐루프',{B1:'e',B5:'e',B8:'e'}],['9회 01/29','관제 앱 게시와 통합 시연',{B9:'ep'}]];
+const I=[['1회 11/14','센서와 데이터 흐름 알아보기',{B1:'i',B2:'i'}],['2회 01/25','품질 플래그와 시계열 DB',{B3:'i',B2:'e'}],['3회 01/26','Neo4j로 설비와 매뉴얼 연결',{B4:'i'}],['4회 01/27','지속 이상과 이벤트 화면',{B5:'i',B9:'i',B2:'e',B3:'e'}],['5회 01/28','SOP 검색과 Skill 작성',{B6:'i',B4:'e'}],['6회 01/29','도구를 쓰는 로컬 에이전트',{B7:'i',B8:'i'}],['7회 02/01','Ontology Studio에서 내 설비 조회',{B4:'ep',B3:'p'}],['8회 02/02','업무 Skill 적용',{B6:'ep',B7:'ep',B8:'ep'}],['9회 02/03','관제 화면과 배포',{B9:'ep'}],['10회 02/04','전체 아키텍처 폐루프 시연',{B1:'e',B5:'e',B8:'e',B9:'e'}]];
+const L={i:'구현',e:'확장',p:'플랫폼',ip:'구현+P',ep:'확장+P'};
+function t(el,title,rows){let h=`<div class="cls">${title}</div><table><tr><th></th><th class="s"></th>${B.map(b=>`<th>${b}</th>`).join('')}</tr>`;for(const [d,n,m] of rows){h+=`<tr><th>${d}</th><th class="s">${n}</th>${B.map(b=>`<td class="${m[b]||''}">${m[b]?L[m[b]]:''}</td>`).join('')}</tr>`}document.getElementById(el).innerHTML=h+'</table>'}
+t('t1','실전반 4학년 · 9회 × 4시간 (함수·질의·정책 수정과 검증)',P);t('t2','통합반 2·3학년 · 10회 × 4시간 (제공 코드의 매핑·설정·조건 완성)',I);
+</script></div>

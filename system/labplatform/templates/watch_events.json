@@ -1,0 +1,11 @@
+{
+  "watch_id": "hydops-new-events",
+  "description": "미처리 사건 한 건을 SQL 로 읽어 냉각 이상 대응 업무를 시작한다",
+  "datasource": "hydops_edu",
+  "sql": "SELECT event_id, asset_id, run_id, event_type FROM event WHERE status = 'DETECTED' AND process_ref IS NULL AND event_type IN ('COOLING_ANOMALY', 'SENSOR_FAULT') ORDER BY created_at LIMIT 1",
+  "condition": "rows > 0",
+  "process_def_id": "cooling_response",
+  "param_map": {"event_id": "${row.event_id}", "asset_id": "${row.asset_id}", "run_id": "${row.run_id}", "event_type": "${row.event_type}"},
+  "interval_s": 3,
+  "enabled": false
+}

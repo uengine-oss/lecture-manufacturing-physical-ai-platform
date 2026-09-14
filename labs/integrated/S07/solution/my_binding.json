@@ -1,0 +1,45 @@
+{
+  "schema_name": "HydraulicOps",
+  "classes": [
+    {
+      "name": "Asset",
+      "key": "asset_id",
+      "binding": {"kind": "graph", "label": "Asset"}
+    },
+    {
+      "name": "Event",
+      "key": "event_id",
+      "binding": {
+        "kind": "virtual",
+        "datasource": "hydops_edu",
+        "table": "event",
+        "order_by": "created_at",
+        "column_map": [
+          {"property": "event_id", "column": "event_id"},
+          {"property": "asset_id", "column": "asset_id"},
+          {"property": "status", "column": "status"},
+          {"property": "created_at", "column": "created_at"}
+        ]
+      }
+    },
+    {
+      "name": "Verification",
+      "key": "verification_id",
+      "binding": {
+        "kind": "virtual",
+        "datasource": "hydops_edu",
+        "table": "verification",
+        "order_by": "verified_at",
+        "column_map": [
+          {"property": "verification_id", "column": "verification_id"},
+          {"property": "event_id", "column": "event_id"},
+          {"property": "outcome", "column": "outcome"}
+        ]
+      }
+    }
+  ],
+  "relationships": [
+    {"name": "HAS_EVENT", "from": "Asset", "to": "Event", "via": {"kind": "join", "from_property": "asset_id", "to_property": "asset_id"}},
+    {"name": "HAS_VERIFICATION", "from": "Event", "to": "Verification", "via": {"kind": "join", "from_property": "event_id", "to_property": "event_id"}}
+  ]
+}

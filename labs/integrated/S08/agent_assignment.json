@@ -1,0 +1,7 @@
+{
+  "agent_id": "ops-agent",
+  "name": "유압설비 운영 에이전트",
+  "skills": ["____"],
+  "mcp_servers": ["____"],
+  "allowed_tools": ["____", "____", "____", "____"]
+}

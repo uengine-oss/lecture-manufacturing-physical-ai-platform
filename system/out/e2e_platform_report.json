@@ -1,0 +1,447 @@
+{
+  "cases": [
+    {
+      "case": "정상 회복",
+      "event_id": "EVT-20260914-135403-HYD-01-427f",
+      "instance_id": "PI-298d656e",
+      "process_status": "COMPLETED",
+      "business_result": "종결",
+      "equipment_outcome": "RECOVERED",
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "조치 승인:DONE",
+        "승인 기록:DONE",
+        "승인 조치 실행:DONE",
+        "조치 후 재점검:DONE",
+        "종결 (재측정 회복):DONE"
+      ],
+      "event_status": "CLOSED",
+      "event_process_ref": "PI-298d656e",
+      "actions": [
+        "SUCCEEDED"
+      ],
+      "verifications": [
+        "RECOVERED"
+      ],
+      "approvals": [
+        [
+          "kim.operator",
+          "APPROVED",
+          0.8
+        ]
+      ],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop",
+        "propose_action"
+      ],
+      "duplicate_start": {
+        "duplicate": true,
+        "instance_id": "PI-298d656e",
+        "key": "cooling_response:EVT-20260914-135403-HYD-01-427f:1"
+      },
+      "second_completion_http": 409,
+      "form_prefilled": {
+        "event_id": "EVT-20260914-135403-HYD-01-427f",
+        "asset_id": "HYD-01",
+        "run_id": "RUN-dc11078d0c",
+        "action_id": "REDUCE_LOAD",
+        "proposed_value": 0.8
+      },
+      "golden_answered": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "승인 거부",
+      "event_id": "EVT-20260914-135450-HYD-01-4d99",
+      "instance_id": "PI-2e5aaa39",
+      "process_status": "COMPLETED",
+      "business_result": "승인 거부",
+      "equipment_outcome": null,
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "조치 승인:DONE",
+        "승인 기록:DONE",
+        "미실행 종료:DONE"
+      ],
+      "event_status": "REJECTED",
+      "event_process_ref": "PI-2e5aaa39",
+      "actions": [],
+      "verifications": [],
+      "approvals": [
+        [
+          "kim.operator",
+          "REJECTED",
+          null
+        ]
+      ],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop",
+        "search_sop",
+        "propose_action"
+      ]
+    },
+    {
+      "case": "조치 후 미개선",
+      "event_id": "EVT-20260914-135505-HYD-01-4a2f",
+      "instance_id": "PI-541d0809",
+      "process_status": "COMPLETED",
+      "business_result": "이관",
+      "equipment_outcome": "NOT_IMPROVED",
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "조치 승인:DONE",
+        "승인 기록:DONE",
+        "승인 조치 실행:DONE",
+        "조치 후 재점검:DONE",
+        "담당자 이관:DONE"
+      ],
+      "event_status": "ESCALATED",
+      "event_process_ref": "PI-541d0809",
+      "actions": [
+        "SUCCEEDED"
+      ],
+      "verifications": [
+        "NOT_IMPROVED"
+      ],
+      "approvals": [
+        [
+          "kim.operator",
+          "APPROVED",
+          0.8
+        ]
+      ],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop",
+        "propose_action"
+      ]
+    },
+    {
+      "case": "허용 범위 이탈",
+      "event_id": "EVT-20260914-135557-HYD-01-9d09",
+      "instance_id": "PI-40cb7988",
+      "process_status": "COMPLETED",
+      "business_result": "이관",
+      "equipment_outcome": null,
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "조치 승인:DONE",
+        "승인 기록:DONE",
+        "승인 조치 실행:DONE",
+        "담당자 이관:DONE"
+      ],
+      "event_status": "ESCALATED",
+      "event_process_ref": "PI-40cb7988",
+      "actions": [],
+      "verifications": [],
+      "approvals": [
+        [
+          "kim.operator",
+          "APPROVED",
+          0.4
+        ]
+      ],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop",
+        "propose_action"
+      ]
+    },
+    {
+      "case": "도구(명령) 실패",
+      "event_id": "EVT-20260914-135616-HYD-01-3398",
+      "instance_id": "PI-58488f63",
+      "process_status": "COMPLETED",
+      "business_result": "이관",
+      "equipment_outcome": null,
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "조치 승인:DONE",
+        "승인 기록:DONE",
+        "승인 조치 실행:DONE",
+        "담당자 이관:DONE"
+      ],
+      "event_status": "ESCALATED",
+      "event_process_ref": "PI-58488f63",
+      "actions": [
+        "FAILED"
+      ],
+      "verifications": [],
+      "approvals": [
+        [
+          "kim.operator",
+          "APPROVED",
+          0.8
+        ]
+      ],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop",
+        "propose_action"
+      ]
+    },
+    {
+      "case": "센서 오류",
+      "event_id": "EVT-20260914-135630-HYD-01-4303",
+      "instance_id": "PI-7133af89",
+      "process_status": "COMPLETED",
+      "business_result": "보류",
+      "equipment_outcome": null,
+      "steps": [
+        "사건 접수:DONE",
+        "사건-업무 대응 기록:DONE",
+        "근거 확인·조치 제안:DONE",
+        "근거 검증·기록:DONE",
+        "보류·센서 점검:DONE"
+      ],
+      "event_status": "SENSOR_CHECK",
+      "event_process_ref": "PI-7133af89",
+      "actions": [],
+      "verifications": [],
+      "approvals": [],
+      "tool_calls": [
+        "get_recent_window",
+        "get_asset_context",
+        "search_sop"
+      ]
+    },
+    {
+      "case": "이미 처리된 사건의 두 번째 인스턴스",
+      "instance_id": "PI-08aa5109",
+      "process_status": "FAILED",
+      "failed_step": "근거 검증·기록",
+      "error": "http://localhost:8800/api/system/events/EVT-20260914-135403-HYD-01-427f/evidence → 409 {'detail': {'error': 'EVENT_NOT_DETECTED', 'status': 'CLOSED'}}",
+      "event_status_after": "CLOSED"
+    }
+  ],
+  "golden": {
+    "schema_name": "HydraulicOps",
+    "published_version": 1,
+    "results": [
+      {
+        "question": "HYD-01의 최근 온도는 유효한 센서 관측이며 지속 이상인가?",
+        "answered": true,
+        "steps": [
+          {
+            "step": "설비의 센서 찾기 (그래프)",
+            "count": 3,
+            "sample": [
+              {
+                "sensor_id": "HYD-01.FS1",
+                "code": "FS1",
+                "quantity": "flow",
+                "unit": "L/min",
+                "hz": 10
+              },
+              {
+                "sensor_id": "HYD-01.PS1",
+                "code": "PS1",
+                "quantity": "pressure",
+                "unit": "bar",
+                "hz": 100
+              },
+              {
+                "sensor_id": "HYD-01.TS1",
+                "code": "TS1",
+                "quantity": "temperature",
+                "unit": "°C",
+                "hz": 1
+              }
+            ]
+          },
+          {
+            "step": "최근 60초 상태 (Behavior, 원천 DB)",
+            "count": 3,
+            "sample": [
+              {
+                "sensor_id": "FS1",
+                "unit": "L/min",
+                "samples": 60,
+                "avg_valid": 7.2,
+                "max_valid": 7.35,
+                "bad_quality": 0,
+                "last_ts": "2026-09-14T17:15:29+00:00"
+              },
+              {
+                "sensor_id": "PS1",
+                "unit": "bar",
+                "samples": 60,
+                "avg_valid": 120.04,
+                "max_valid": 123.69,
+                "bad_quality": 0,
+                "last_ts": "2026-09-14T17:15:29+00:00"
+              },
+              {
+                "sensor_id": "TS1",
+                "unit": "°C",
+                "samples": 60,
+                "avg_valid": 54.0,
+                "max_valid": 54.64,
+                "bad_quality": 0,
+                "last_ts": "2026-09-14T17:15:29+00:00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "question": "이 설비에 적용되는 최신 냉각 이상 SOP와 허용 조치는 무엇인가?",
+        "answered": true,
+        "steps": [
+          {
+            "step": "적용 SOP (active 만)",
+            "count": 5,
+            "sample": [
+              {
+                "sop_key": "SOP-VER-001@v1",
+                "doc_id": "SOP-VER-001",
+                "version": 1,
+                "title": "조치 후 재점검",
+                "status": "active",
+                "event_type": "COOLING_ANOMALY"
+              },
+              {
+                "sop_key": "SOP-SEN-001@v1",
+                "doc_id": "SOP-SEN-001",
+                "version": 1,
+                "title": "센서 오류 점검",
+                "status": "active",
+                "event_type": "SENSOR_FAULT"
+              },
+              {
+                "sop_key": "SOP-LOAD-001@v1",
+                "doc_id": "SOP-LOAD-001",
+                "version": 1,
+                "title": "승인 부하 감소",
+                "status": "active",
+                "event_type": "COOLING_ANOMALY"
+              }
+            ]
+          },
+          {
+            "step": "그 SOP 들 가운데 냉각 이상 SOP 가 허용하는 조치",
+            "count": 3,
+            "sample": [
+              {
+                "action_id": "REDUCE_LOAD",
+                "name": "승인 부하 감소",
+                "min_value": 0.6,
+                "max_value": 1.0,
+                "default_value": 0.8,
+                "requires_approval": true
+              },
+              {
+                "action_id": "ESCALATE",
+                "name": "정비 책임자 이관",
+                "min_value": null,
+                "max_value": null,
+                "default_value": null,
+                "requires_approval": false
+              },
+              {
+                "action_id": "REDUCE_LOAD",
+                "name": "승인 부하 감소",
+                "min_value": 0.6,
+                "max_value": 1.0,
+                "default_value": 0.8,
+                "requires_approval": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "question": "어떤 근거로 누가 승인했으며 조치 후 새 관측은 회복했는가?",
+        "answered": true,
+        "steps": [
+          {
+            "step": "사건",
+            "count": 1,
+            "sample": [
+              {
+                "event_id": "EVT-20260914-135403-HYD-01-427f",
+                "run_id": "RUN-dc11078d0c",
+                "asset_id": "HYD-01",
+                "event_type": "COOLING_ANOMALY",
+                "status": "CLOSED",
+                "status_reason": "재측정 회복 — 종결",
+                "rule_version": "temp-sustain-v1",
+                "window_start": "2026-09-14T13:54:03+00:00",
+                "created_at": "2026-09-14T13:53:46.332361+00:00"
+              }
+            ]
+          },
+          {
+            "step": "승인",
+            "count": 1,
+            "sample": [
+              {
+                "approval_id": "APR-8361dc2528",
+                "event_id": "EVT-20260914-135403-HYD-01-427f",
+                "approver": "kim.operator",
+                "decision": "APPROVED",
+                "approved_value": 0.8,
+                "decided_at": "2026-09-14T13:53:59.048293+00:00"
+              }
+            ]
+          },
+          {
+            "step": "조치 실행 기록",
+            "count": 1,
+            "sample": [
+              {
+                "action_log_id": "ACT-8d0f07747f",
+                "event_id": "EVT-20260914-135403-HYD-01-427f",
+                "approval_id": "APR-8361dc2528",
+                "action_id": "REDUCE_LOAD",
+                "requested_value": 0.8,
+                "command_status": "SUCCEEDED",
+                "executed_at": "2026-09-14T13:53:59.123393+00:00"
+              }
+            ]
+          },
+          {
+            "step": "재측정 판정",
+            "count": 1,
+            "sample": [
+              {
+                "verification_id": "VER-6e08f06516",
+                "event_id": "EVT-20260914-135403-HYD-01-427f",
+                "action_log_id": "ACT-8d0f07747f",
+                "outcome": "RECOVERED",
+                "window_start": "2026-09-14T13:55:31+00:00",
+                "window_end": "2026-09-14T13:56:31+00:00"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "elapsed_s": 179.7
+}

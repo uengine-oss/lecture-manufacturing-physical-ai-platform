@@ -1,0 +1,8 @@
+{
+  "agent_id": "ops-agent",
+  "name": "유압설비 운영 에이전트",
+  "role": "냉각 이상·센서 오류 사건에 대해 근거 있는 조치 제안을 만든다.",
+  "skills": ["hydraulic-cooling-response"],
+  "mcp_servers": ["hydops"],
+  "allowed_tools": ["get_asset_context", "get_recent_window", "search_sop", "propose_action"]
+}

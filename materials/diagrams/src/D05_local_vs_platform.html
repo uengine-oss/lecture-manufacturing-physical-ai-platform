@@ -1,0 +1,21 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>로컬 실습과 플랫폼 실습은 같은 함수를 부른다</h1>
+<p class="sub">전반부는 LangGraph 로 흐름을 직접 짜고, 후반부는 교육용 플랫폼의 프로세스·에이전트·앱이 같은 서비스 함수를 호출한다. 결과는 같은 PostgreSQL 기록으로 대조한다.</p>
+<style>.g2{display:grid;grid-template-columns:1fr 240px 1fr;gap:14px;align-items:stretch}.col{border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;background:#fff}.col h2{margin:0 0 10px;font-size:18px}
+.st{border-radius:10px;padding:9px 12px;margin-bottom:8px;font-size:14px;border:1px solid #e5e7eb}.st b{display:inline-block;min-width:130px}
+.core{border-radius:14px;background:#0f1b2d;color:#e5edf7;padding:14px;display:flex;flex-direction:column;gap:8px;justify-content:center}.core div{background:#1e2d44;border-radius:8px;padding:8px;font-size:13px;font-family:ui-monospace,Menlo,monospace}.core h3{margin:0;color:#7dd3fc;font-size:15px}</style>
+<div class="g2">
+<div class="col"><h2>로컬 (실전반 1~5회 · 통합반 1~6회)</h2>
+<div class="st l3"><b>감지 후 시작</b>runtime.listeners → Orchestrator.start</div>
+<div class="st l3"><b>근거 확인</b>LangChain create_agent + SKILL.md</div>
+<div class="st l4"><b>사람 승인</b>LangGraph interrupt · 관제 화면 승인 버튼</div>
+<div class="st l4"><b>실행·재측정</b>그래프 노드 → 서비스 함수</div>
+<div class="st"><b>체크포인트</b>PostgresSaver (thread_id = event_id)</div></div>
+<div class="core"><h3>공유 서비스 · 도구</h3><div>service.gather_evidence</div><div>service.record_decision</div><div>service.execute</div><div>service.verify</div><div>MCP /mcp/ 도구 6종</div><h3>공유 기록</h3><div>event · approval · action_log · verification</div></div>
+<div class="col"><h2>교육용 플랫폼 (실전반 6~9회 · 통합반 7~10회)</h2>
+<div class="st l3"><b>Watch Agent</b>SQL 한 건 → rows &gt; 0 → 업무 시작 (인스턴스 키)</div>
+<div class="st l3"><b>업무 에이전트</b>할당 Skill + MCP 허용 도구 4종</div>
+<div class="st l4"><b>승인 태스크</b>워크리스트 폼: event_id·asset_id·run_id·제안값·근거</div>
+<div class="st l4"><b>도구 활동</b>execute_sim_action → verify_recovery 재시도</div>
+<div class="st"><b>관제 앱</b>Ontology 객체(Event) + 프로세스 + 조치 기록이 같은 사건</div></div>
+</div></div>

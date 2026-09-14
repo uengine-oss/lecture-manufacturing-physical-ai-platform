@@ -1,0 +1,9 @@
+*{box-sizing:border-box}body{margin:0;background:#fcfcfb;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#18212f}
+#d{display:inline-block;padding:28px 32px;background:#fcfcfb}
+h1{font-size:24px;margin:0 0 4px}.sub{color:#52514e;margin:0 0 18px;font-size:14px}
+.mono{font-family:ui-monospace,Menlo,monospace}
+.l1{background:#eef4fb;border-color:#c9dcf1}.l2{background:#edf7f1;border-color:#c5e6d2}.l3{background:#f3f1f9;border-color:#d9d3ee}.l4{background:#fbf3ea;border-color:#efd9c0}
+.blk{display:inline-flex;flex-direction:column;justify-content:center;border:1.5px solid #cfd6df;background:#fff;border-radius:12px;padding:10px 14px;font-weight:700;font-size:16px;min-width:150px}
+.blk small{font-weight:500;color:#52514e;font-size:12.5px;margin-top:2px}
+.tag{display:inline-block;font-size:12px;border-radius:99px;padding:2px 10px;background:#f4ebff;color:#6941c6;font-weight:600}
+.arrow{color:#8a94a6;font-size:22px;padding:0 6px}

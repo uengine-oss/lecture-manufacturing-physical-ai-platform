@@ -1,0 +1,20 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>저장소를 나누는 기준 — DB 는 PostgreSQL 과 Neo4j 두 개</h1>
+<p class="sub">원시 파일은 파일 저장소, 수치 관측과 실행 이력은 PostgreSQL, 설비 관계와 SOP 검색은 Neo4j. 처음부터 시계열 전체를 그래프 노드로 만들지 않는다.</p>
+<style>.g3{display:grid;grid-template-columns:260px 1fr 1fr;gap:16px}.c{border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;background:#fff}.c h2{font-size:18px;margin:0 0 8px}
+.t{border:1px solid #d6dde6;border-radius:10px;margin-bottom:8px;overflow:hidden;font-size:12.5px}.t b{display:block;background:#f1f5f9;padding:5px 10px;font-size:13.5px}.t span{display:block;padding:5px 10px;font-family:ui-monospace,Menlo,monospace;color:#374151}
+.key{background:#fef3c7;border-radius:4px;padding:0 3px}.bridge{grid-column:1/-1;background:#0f1b2d;color:#e5edf7;border-radius:12px;padding:12px 16px;font-size:14.5px}</style>
+<div class="g3">
+<div class="c"><h2>파일 저장소</h2><div class="t"><b>data/raw</b><span>TS1.txt (1 Hz)<br>PS1.txt (100 Hz)<br>FS1.txt (10 Hz)<br>profile.txt (정답 라벨)</span></div><div class="t"><b>data/reduced</b><span>hydraulic_1s.npz<br>1초 mean/min/max/n</span></div><div class="t"><b>b6_sop/docs</b><span>SOP-*.md (frontmatter)</span></div></div>
+<div class="c l1"><h2>PostgreSQL · 수치와 이력</h2>
+<div class="t"><b>observation</b><span><i class="key">run_id</i> <i class="key">asset_id</i> sensor_id ts(replay_ts) elapsed_s origin_cycle_id raw_value value unit quality_flag agg is_synthetic</span></div>
+<div class="t"><b>event</b><span><i class="key">event_id</i> run_id asset_id event_type window_start/end rule_version evidence status proposal process_ref</span></div>
+<div class="t"><b>approval · action_log</b><span>approval_id approver decision approved_value · <i class="key">idempotency_key</i> command_status sim_ts</span></div>
+<div class="t"><b>verification · event_history</b><span>window(조치 이후) outcome metrics · 모든 상태 전이와 행위자</span></div></div>
+<div class="c l2"><h2>Neo4j · 관계와 문서</h2>
+<div class="t"><b>(:Asset:Resource)</b><span>asset_id name cooling line</span></div>
+<div class="t"><b>-[:HAS_SENSOR]→ (:Sensor:Measure)</b><span>sensor_id code quantity unit hz aliases</span></div>
+<div class="t"><b>(:SOP)-[:APPLIES_TO]→(:Asset)</b><span>doc_id version effective_date status · -[:HAS_SECTION]→(:SOPSection {text, embedding}) · -[:ALLOWS]→(:Action)</span></div>
+<div class="t"><b>(:Event 참조)-[:ON_ASSET]→ · -[:CITES]→(:SOPSection)</b><span>event_id status — 수치 상세는 PostgreSQL 에서</span></div></div>
+<div class="bridge"><b style="color:#7dd3fc">결합 기준</b>  asset_id 로 그래프 맥락과 시계열 결과를 잇고, event_id 로 감지·근거·승인·조치·재측정을 잇는다. 플랫폼에서는 수치를 원천 DB 에 두고(가상 연결) 문서 지식만 그래프에 둔다.</div>
+</div></div>

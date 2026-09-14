@@ -1,0 +1,4 @@
+,asset_id,sensor_id,quantity,unit,hz,file
+TS1,HYD-01,,temperature,,,TS1.txt
+PS1,HYD-01,HYD-01.PS1,pressure,,,
+FS1,HYD-01,,flow,,,

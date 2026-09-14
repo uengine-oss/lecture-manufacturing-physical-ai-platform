@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="base.css"><div id="d" style="width:1500px">
+<h1>하나의 사건이 통과하는 경로</h1>
+<p class="sub">종결 기준은 도구 호출 성공이 아니라 <b>조치 이후 새 관측의 회복</b>이다. 모든 기록은 같은 <span class="mono">event_id</span> 로 이어진다.</p>
+<svg width="1436" height="470" viewBox="0 0 1436 470" font-family="Pretendard" font-size="15">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6b7684"/></marker>
+<marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1baf7a"/></marker></defs>
+<g stroke="#6b7684" stroke-width="2" fill="none" marker-end="url(#a)">
+<path d="M170 90 H225"/><path d="M395 90 H450"/><path d="M620 90 H675"/><path d="M845 90 H900"/>
+<path d="M985 125 V185"/><path d="M1070 210 H1125"/><path d="M985 245 V305"/><path d="M900 340 H845"/>
+</g>
+<g font-weight="700">
+<rect x="20" y="55" width="150" height="70" rx="12" fill="#eef4fb" stroke="#c9dcf1"/><text x="95" y="86" text-anchor="middle">B1 시뮬레이터</text><text x="95" y="108" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">온도·부하·냉각</text>
+<rect x="225" y="55" width="170" height="70" rx="12" fill="#eef4fb" stroke="#c9dcf1"/><text x="310" y="86" text-anchor="middle">B2 품질 검사</text><text x="310" y="108" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">센서 오류 ≠ 설비 이상</text>
+<rect x="450" y="55" width="170" height="70" rx="12" fill="#eef4fb" stroke="#c9dcf1"/><text x="535" y="86" text-anchor="middle">B3 PostgreSQL</text><text x="535" y="108" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">observation</text>
+<rect x="675" y="55" width="170" height="70" rx="12" fill="#f3f1f9" stroke="#d9d3ee"/><text x="760" y="86" text-anchor="middle">B5 탐지</text><text x="760" y="108" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">60°C 10초 지속 → 사건</text>
+<rect x="900" y="55" width="170" height="70" rx="12" fill="#fff" stroke="#2a78d6" stroke-width="2"/><text x="985" y="86" text-anchor="middle" fill="#2a78d6">event 생성</text><text x="985" y="108" text-anchor="middle" font-weight="400" font-size="12.5" class="mono" fill="#52514e">event_id</text>
+<rect x="900" y="185" width="170" height="60" rx="12" fill="#f3f1f9" stroke="#d9d3ee"/><text x="985" y="221" text-anchor="middle">B7 에이전트</text>
+<rect x="1125" y="150" width="290" height="120" rx="12" fill="#edf7f1" stroke="#c5e6d2"/><text x="1270" y="180" text-anchor="middle">근거 조회</text>
+<text x="1140" y="208" font-weight="400" font-size="13.5">B4 대상 설비 맥락 (센서·허용 조치)</text><text x="1140" y="232" font-weight="400" font-size="13.5">B6 적용 SOP 절 (설비·버전 필터)</text><text x="1140" y="256" font-weight="400" font-size="13.5" fill="#52514e">Skill = 판단 순서 · 중단 규칙</text>
+<rect x="900" y="305" width="170" height="70" rx="12" fill="#fbf3ea" stroke="#efd9c0"/><text x="985" y="336" text-anchor="middle">B8 허용 범위 검사</text><text x="985" y="358" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">제안 → 사람 승인</text>
+<rect x="620" y="305" width="225" height="70" rx="12" fill="#fbf3ea" stroke="#efd9c0"/><text x="732" y="336" text-anchor="middle">B8 실행 (승인 기록 검사)</text><text x="732" y="358" text-anchor="middle" font-weight="400" font-size="12.5" fill="#52514e">부하 1.0 → 0.8 · 중복 키</text>
+</g>
+<path d="M620 340 C 300 340, 95 300, 95 130" stroke="#1baf7a" stroke-width="3" fill="none" marker-end="url(#b)"/>
+<text x="300" y="255" fill="#067647" font-weight="700">재측정 루프: 새 관측이 B2 → B3 → B5 로 돌아온다</text>
+<rect x="20" y="400" width="1396" height="56" rx="12" fill="#0f1b2d"/>
+<text x="40" y="434" fill="#e5edf7" font-size="15"><tspan font-weight="700" fill="#7dd3fc">B9 관제</tspan>  같은 event_id 로  감지 · 근거(도구 호출·SOP 인용) · 승인 · 명령 결과 · 재측정 판정 을 한 화면에 모은다   —   회복이면 종결, 미개선이면 이관, 센서가 끊기면 판정 보류</text>
+</svg></div>

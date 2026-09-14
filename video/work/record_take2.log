@@ -1,0 +1,37 @@
+14:12:39 servers → local
+14:12:41 scene 1 사건 하나
+14:13:06 scene 2 데이터를 같은 말로
+14:13:32 scene 3 센서 오류와 설비 이상
+14:13:55 scene 4 설비와 매뉴얼의 관계
+14:14:22 scene 5 관제 화면
+14:14:43 scene 6 센서가 끊겼을 때
+14:15:03 scene 7 냉각 성능 저하
+14:15:21 scene 8 근거를 찾는 에이전트
+14:15:46 scene 9 사람의 승인과 실행
+14:16:07 scene 10 새 관측으로 종결
+14:16:30 scene 11 잘 안 될 때의 갈래
+14:16:58 scene 12 감지는 평가로 확인
+14:17:34 scene 13 플랫폼의 지식 계층
+14:17:56 scene 14 업무 에이전트와 도구
+14:18:15 scene 15 업무 흐름 속의 승인
+14:18:56 scene 16 업무 완료와 설비 회복
+14:19:16 scene 17 이 과정에서 만드는 것
+✓ 관제 화면 렌더(723자)
+✓ 로컬 오케스트레이션 모드
+✓ 센서 오류 → 센서 점검 제안
+✓ 에이전트 도구 호출 get_asset_context→get_recent_window→search_sop→search_sop→propose_action
+✓ 부하 감소 제안
+✓ SOP 인용 2건
+✓ 명령 성공 기록
+✓ 재측정 회복 판정
+✓ 흐름 종결
+✓ 플랫폼 오케스트레이션 모드 전환
+✓ Ontology Studio 렌더(1712자)
+✓ 스키마 발행됨
+✓ Golden Question 3/3
+✓ Watch → 업무 시작
+✓ 폼에 event_id 보존
+✓ 제안 조치 매핑
+✓ 인스턴스 PI-87e71870 COMPLETED · 설비 RECOVERED
+✓ 같은 사건 3중 확인
+raw /Users/uengine/uengine-platform/lecture/video/work/raw/hydops-raw.webm total 430.6 s

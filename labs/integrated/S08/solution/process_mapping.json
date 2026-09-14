@@ -1,0 +1,39 @@
+{
+  "def_id": "cooling_response",
+  "instance_key": "event_id",
+  "watch_param_map": {
+    "event_id": "${row.event_id}",
+    "asset_id": "${row.asset_id}",
+    "run_id": "${row.run_id}",
+    "event_type": "${row.event_type}"
+  },
+  "intake_required_fields": ["event_id", "asset_id", "run_id", "event_type"],
+  "approve_form": {
+    "role": "설비 담당자",
+    "readonly_defaults": {
+      "event_id": "${event_id}",
+      "asset_id": "${asset_id}",
+      "run_id": "${run_id}",
+      "action_id": "${action_id}",
+      "proposed_value": "${proposed_value}",
+      "citations": "${citations}"
+    },
+    "decision_options": ["APPROVED", "REJECTED"],
+    "approved_value_default": "${proposed_value}"
+  },
+  "record_decision_body": {
+    "approver": "${approver}",
+    "decision": "${decision}",
+    "value": "${approved_value}"
+  },
+  "act": {
+    "tool": "execute_sim_action",
+    "args": {
+      "event_id": "${event_id}",
+      "approval_id": "${approval_id}",
+      "action_id": "${action_id}",
+      "value": "${approved_value}"
+    }
+  },
+  "to_act_when_decision": "APPROVED"
+}
