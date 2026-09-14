@@ -5,7 +5,9 @@
 
 ## 설명 영상
 
-https://github.com/uengine-oss/lecture-hydops/raw/main/video/HydOps_강의시스템_설명영상.mp4
+<video src="https://github.com/uengine-oss/lecture-hydops/raw/main/video/HydOps_강의시스템_설명영상.mp4" controls muted width="720">
+  브라우저가 인라인 재생을 지원하지 않으면 <a href="video/HydOps_강의시스템_설명영상.mp4">여기</a>서 내려받아 볼 수 있다.
+</video>
 
 실제 실행 녹화 + OpenAI TTS 나레이션 + 한국어 자막. 자막 파일: [video/HydOps_강의시스템_설명영상.srt](video/HydOps_강의시스템_설명영상.srt)
 
