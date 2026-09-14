@@ -3,6 +3,12 @@
 실라버스 `제조_피지컬AI_플랫폼연계_실라버스_v2.docx` 를 실제로 수업할 수 있게 만든 결과물이다.
 센서 데이터에서 시작해 이상 감지, 근거 있는 조치 제안, 사람 승인, 시뮬레이터 조치, 재측정까지 이어지는 시스템을 완성하고, 그 과정을 영상·그림·차수별 교재·실습으로 옮겼다.
 
+## 설명 영상
+
+https://github.com/uengine-oss/lecture-hydops/raw/main/video/HydOps_강의시스템_설명영상.mp4
+
+실제 실행 녹화 + OpenAI TTS 나레이션 + 한국어 자막. 자막 파일: [video/HydOps_강의시스템_설명영상.srt](video/HydOps_강의시스템_설명영상.srt)
+
 | 폴더 | 내용 | 시작점 |
 |---|---|---|
 | `system/` | 강의용 완성 시스템 (B1~B9 + 교육용 플랫폼) · 테스트 · 준비 스크립트 | [system/README.md](system/README.md) |
