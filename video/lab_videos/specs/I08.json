@@ -1,0 +1,319 @@
+{
+  "id": "I08",
+  "class": "통합반",
+  "session": 8,
+  "title": "업무 Skill 적용",
+  "date": "2027-02-02 (화)",
+  "blocks": "확장 B6 · B7 · B8 / 플랫폼 B6 · B7 · B8",
+  "textbook": "textbooks/통합반/I08_업무_Skill_적용.md",
+  "lab": "labs/integrated/S08",
+  "next": {
+    "id": "통합반 9회",
+    "title": "관제 화면과 배포",
+    "date": "2027-02-03 (수)"
+  },
+  "scenes": [
+    {
+      "type": "title",
+      "caption": "통합반 8회 · 업무 Skill 적용",
+      "subtitle": "Agents 계층과 Orchestration 계층을 설정으로 연결한다",
+      "points": [
+        "등록된 Skill 을 업무 에이전트에 할당하고 실행 도구는 뺀다",
+        "도구 6종을 조회·검색·제안·실행·재측정으로 나눈다",
+        "사건 값이 승인 폼과 실행 도구까지 이어지는 매핑 빈칸을 채운다"
+      ],
+      "narration": "통합반 여덟 번째 실습을 시작하겠습니다. 5회에는 SKILL.md 를 채웠고, 6회에는 도구와 승인 흐름을 로컬에서 이어 봤죠. 오늘은 그 두 가지를 교육용 플랫폼(Lab Platform)에 붙입니다. 새 에이전트 코드를 짜지 않습니다. 이미 등록된 Skill 과 도구 서버를 업무 에이전트에 설정으로 할당하고, 사건 하나의 값이 접수 폼에서 승인 폼, 실행 도구까지 어떻게 흘러가는지 빈칸을 채워 보겠습니다."
+    },
+    {
+      "type": "concept",
+      "caption": "오늘은 만들지 않고 연결한다",
+      "heading": "새 프레임워크 없이 기능을 연결하는 날",
+      "points": [
+        "Skill 하나(hydraulic-cooling-response)와 도구 서버 하나(hydops)는 강사가 미리 등록했다",
+        "우리는 JSON 두 파일의 빈칸만 채운다: agent_assignment.json · process_mapping.json",
+        "흐름: 사건 접수 → 근거 확인·제안 → 사람 승인 → 조치 → 재점검",
+        "실제 플랫폼 대응: Process GPT 업무 에이전트 · 프로세스 · 워크리스트"
+      ],
+      "analogy": "새 직원을 뽑는 게 아니라, 이미 있는 직원에게 업무 매뉴얼과 출입증을 나눠 주는 날이다.",
+      "narration": "오늘 할 일을 한 문장으로 말하면, 만들지 않고 연결하는 날입니다. 새 직원을 뽑는 게 아니라 이미 있는 직원에게 업무 매뉴얼과 출입증을 나눠 주는 것과 비슷하죠. Skill 하나와 도구 서버 하나는 강사가 미리 등록해 두었고, 우리는 JSON 파일 두 개의 빈칸만 채웁니다. 참고로 교육용 플랫폼의 이 기능들은 실제 플랫폼의 Process GPT 업무 에이전트와 프로세스에 대응합니다."
+    },
+    {
+      "type": "concept",
+      "caption": "Skill · SOP · 도구는 역할이 다르다",
+      "heading": "Skill 은 업무 지침, SOP 는 근거, 도구는 실행 기능",
+      "points": [
+        "Skill(SKILL.md): 무엇을 어떤 순서로 판단하나",
+        "SOP: 무엇이 허용되고 누가 승인하나",
+        "도구: 실제로 조회하고 실행하고 검사한다",
+        "Skill 본문은 실행 때 시스템 프롬프트 [할당된 스킬 가이드] 아래에 붙는다"
+      ],
+      "image": "materials/diagrams/D04_skill_sop_tool.png",
+      "analogy": "요리로 치면 Skill 은 레시피, SOP 는 위생 규정, 도구는 칼과 불이다.",
+      "narration": "6회에 정리한 세 가지 역할을 다시 떠올려 봅시다. 요리에 비유하면 Skill 은 어떤 순서로 만들지 적은 레시피, SOP 는 무엇이 허용되는지 정한 위생 규정, 도구는 실제로 자르고 굽는 칼과 불입니다. 그림 아래 표에 도구 여섯 개가 있고, 오른쪽 끝에 누가 호출하는지가 적혀 있습니다. 위의 네 개는 에이전트가, 아래 두 개는 승인 뒤 오케스트레이션이 부르죠. 이 구분이 오늘 첫 번째 빈칸의 답입니다."
+    },
+    {
+      "type": "concept",
+      "caption": "서버에 있는 도구 ≠ 에이전트에 허용한 도구",
+      "heading": "도구 6종 중 에이전트에게는 4개만 준다",
+      "points": [
+        "상태 조회: get_asset_context · get_recent_window → 허용",
+        "근거 검색: search_sop → 허용",
+        "제안 검사(실행 안 함): propose_action → 허용",
+        "조치 실행 execute_sim_action · 재측정 verify_recovery → 불허, 프로세스의 도구 활동이 부른다"
+      ],
+      "analogy": "인턴에게 장부를 열람할 권한은 주지만 결재 도장은 맡기지 않는다.",
+      "note": "SKILL.md 에 '승인 전에는 실행하지 않는다'고 써도 승인 검사가 생기지 않는다. 검사는 실행 도구의 코드가 한다.",
+      "narration": "여섯 도구를 역할로 나누면 이렇습니다. 설비 상태를 보는 조회 도구 두 개, SOP 를 찾는 검색 도구, 제안이 허용 범위 안인지 검사만 하는 제안 도구, 이 네 개는 에이전트에게 줍니다. 조치 실행과 재측정 도구는 주지 않습니다. 인턴에게 장부 열람 권한은 줘도 결재 도장은 맡기지 않는 것과 같죠. SKILL.md 에 승인 전에는 실행하지 말라고 적는다고 검사가 생기지는 않습니다. 그래서 도구를 아예 빼 두고, 실행은 승인 뒤 프로세스가 합니다."
+    },
+    {
+      "type": "code",
+      "caption": "허용 목록에 있는 도구만 남긴다",
+      "heading": "labplatform/agents.py — run_agent_async",
+      "file": "system/labplatform/agents.py",
+      "lines": [
+        156,
+        168
+      ],
+      "highlight": [
+        164,
+        165,
+        166
+      ],
+      "note": "도구 서버에서 도구를 모두 받아 온 뒤, allowed_tools 에 있는 이름만 남긴다.",
+      "narration": "교육용 플랫폼이 에이전트를 실행하는 코드를 잠깐 보겠습니다. 노란 줄을 보세요. 먼저 도구 서버에서 도구를 모두 받아 옵니다. 그다음 줄에서 에이전트 설정에 allowed_tools, 즉 허용 도구 목록이 있으면 그 이름에 들어 있는 도구만 남기죠. 그러니까 허용 목록에서 실행 도구를 빼면, 에이전트는 그런 도구가 있다는 것조차 모르게 됩니다. 우리가 채울 JSON 한 줄이 이렇게 실제 권한이 됩니다."
+    },
+    {
+      "type": "app",
+      "caption": "Agents 화면 · 조회 도구 호출",
+      "heading": "콘솔 Agents 화면에서 조회 도구 호출",
+      "action": "console",
+      "params": {
+        "tab": "agents",
+        "do": "call_tool"
+      },
+      "narration": "교육용 플랫폼 콘솔의 Agents 화면입니다. 왼쪽 업무 에이전트 카드에 할당 Skill 과 허용 도구가 적혀 있고, 오른쪽 MCP 도구 서버 칸에서는 도구를 골라 직접 호출해 볼 수 있습니다. 조회 호출을 누르면 get_asset_context 가 HYD-01 의 설비 정보와 센서 목록을 돌려줍니다. 조회 도구는 아무것도 바꾸지 않으니 마음껏 눌러 봐도 됩니다. 오른쪽 아래 Watch 카드의 시작 버튼은 강사만 누릅니다."
+    },
+    {
+      "type": "concept",
+      "caption": "사건 값은 운송장 번호처럼 따라간다",
+      "heading": "프로세스 템플릿과 ${...} 매핑",
+      "points": [
+        "사건 접수(폼) → 대응 기록 → 근거 확인·제안(에이전트) → 근거 검증 → 조치 승인(사람) → 승인 기록 → 승인 조치 실행(도구) → 조치 후 재점검(도구)",
+        "${row.열이름} 은 Watch SQL 결과 행, ${변수} 는 인스턴스 변수",
+        "인스턴스 키는 event_id — 같은 사건의 중복 시작을 막는다",
+        "실행 도구 값은 제안값이 아니라 승인값 ${approved_value}"
+      ],
+      "image": "materials/screenshots/S15_platform_worklist_approval.png",
+      "analogy": "택배 운송장 번호가 접수부터 배송 완료까지 같은 번호로 따라가는 것과 같다.",
+      "narration": "다음은 프로세스 템플릿입니다. 화면 위쪽에 사건 접수부터 조치 후 재점검까지 여덟 개 활동이 놓여 있죠. 달러 중괄호로 쓴 자리는 나중에 실제 값으로 바뀌는 칸인데, row 점으로 시작하면 Watch 가 읽은 사건 행의 열이고, 그냥 이름이면 인스턴스 변수입니다. 택배 운송장 번호처럼 사건 ID 가 끝까지 같은 값으로 따라가야 합니다. 아래 승인 폼의 사건 ID, 제안값, 근거 참조가 그렇게 채워진 값입니다."
+    },
+    {
+      "type": "task",
+      "caption": "오늘의 실습 과제 S08",
+      "heading": "실습 과제 · JSON 두 파일의 빈칸 채우기",
+      "steps": [
+        "시작본 테스트를 돌려 무엇이 비었는지 본다",
+        "SKILL.md frontmatter 를 보고 agent_assignment.json 을 채운다",
+        "다시 테스트해 에이전트 할당 테스트가 통과하는지 본다",
+        "제공 템플릿을 보고 process_mapping.json 을 채운다",
+        "전체 테스트 9개 통과를 확인한다"
+      ],
+      "files": [
+        "labs/integrated/S08/agent_assignment.json",
+        "labs/integrated/S08/process_mapping.json",
+        "labs/integrated/S08/test_check.py"
+      ],
+      "narration": "이제 실습 과제입니다. 통합반은 빈칸을 채우고 확인하는 방식이죠. 파일은 두 개입니다. 에이전트 할당 파일에는 Skill 이름, 도구 서버 이름, 허용 도구 네 개를 넣고, 프로세스 매핑 파일에는 템플릿과 같은 값을 채웁니다. 테스트는 GET 요청만 보내서 등록된 Skill, 도구, 프로세스 정의와 대조할 뿐, 프로세스를 시작하지는 않습니다. 먼저 시작본 그대로 돌려 보겠습니다."
+    },
+    {
+      "type": "run",
+      "caption": "시작본 그대로 테스트 실행",
+      "heading": "시작본 테스트 — 빈칸 그대로",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "system 폴더에서 테스트를 실행합니다. 아홉 개가 모두 실패했습니다. 아래 요약 줄을 보면 빈칸이 남아 있다는 검사부터, 에이전트 할당, 접수와 Watch 매핑, 승인 폼, 실행 도구, 등록된 정의와의 대조까지 줄줄이 빨갛습니다. 당연하죠. 아직 아무것도 채우지 않았으니까요. 실패 목록은 오늘 채울 곳의 차례표라고 생각하면 됩니다."
+    },
+    {
+      "type": "code",
+      "caption": "정답은 SKILL.md 머리말에 있다",
+      "heading": "SKILL.md frontmatter — name 과 tools",
+      "file": "system/skills/hydraulic-cooling-response/SKILL.md",
+      "lines": [
+        1,
+        6
+      ],
+      "highlight": [
+        2,
+        5
+      ],
+      "note": "등록 이름은 파일 경로가 아니라 frontmatter 의 name 이다.",
+      "narration": "첫 번째 빈칸의 답은 SKILL.md 맨 위 머리말에 있습니다. 이런 머리말을 frontmatter 라고 하는데, 책 표지에 적힌 제목과 목차 같은 것이죠. 노란 두 줄을 보세요. name 은 hydraulic-cooling-response, tools 에는 조회 두 개, 검색 하나, 제안 하나가 적혀 있습니다. 흔한 실수는 Skill 이름 자리에 파일 경로를 적는 것인데, 등록 이름은 경로가 아니라 이 name 입니다."
+    },
+    {
+      "type": "code",
+      "caption": "에이전트 할당 빈칸 여섯 칸",
+      "heading": "agent_assignment.json — 시작본",
+      "file": "labs/integrated/S08/agent_assignment.json",
+      "lines": [
+        1,
+        7
+      ],
+      "highlight": [
+        4,
+        5,
+        6
+      ],
+      "note": "execute_sim_action · verify_recovery 를 넣으면 테스트가 실패한다.",
+      "narration": "이제 채울 파일입니다. 에이전트 아이디는 ops-agent, 이름은 유압설비 운영 에이전트로 이미 적혀 있고, 노란 세 줄에 밑줄 빈칸이 있습니다. skills 에 Skill 이름 하나, mcp_servers 에 도구 서버 이름 하나, allowed_tools 에 도구 네 개입니다. 도구 서버는 앞에서 본 hydops 입니다. 허용 도구는 frontmatter 의 tools 와 똑같이 둡니다. 서버에 여섯 개가 있다고 여섯 개를 다 넣으면 안 됩니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "Skill · 도구 서버 · 허용 도구 4개",
+      "heading": "agent_assignment.json 채우기",
+      "file": "agent_assignment.json",
+      "narration": "왼쪽이 시작본, 오른쪽이 채운 뒤입니다. skills 에는 hydraulic-cooling-response, mcp_servers 에는 hydops, allowed_tools 에는 get_asset_context, get_recent_window, search_sop, propose_action 네 개가 들어갔습니다. 실행 도구와 재측정 도구는 없죠. 수업에서는 강사 신호에 맞춰 이 파일을 POST 로 등록하면, 콘솔의 에이전트 카드에 허용 도구 네 개가 보입니다."
+    },
+    {
+      "type": "run",
+      "caption": "할당 파일만 채운 뒤 다시 실행",
+      "heading": "다시 실행 — 에이전트 테스트는 통과",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "다시 돌려 보면 결과가 달라졌습니다. 일곱 개 실패, 두 개 통과입니다. 통과한 두 개는 에이전트가 Skill 과 조회 도구만 쓰는지 보는 정적 검사와, 실제 교육용 플랫폼에 등록된 Skill, 도구 서버, 도구 목록과 대조하는 검사입니다. 남은 일곱 개는 모두 프로세스 매핑 파일과 관련된 것이죠. 파일 하나 고칠 때마다 이렇게 실패 수가 줄어드는지 확인하는 습관을 들여 봅시다."
+    },
+    {
+      "type": "code",
+      "caption": "Watch 행 → 접수 폼 → 승인 폼",
+      "heading": "process_mapping.json — 앞부분 빈칸",
+      "file": "labs/integrated/S08/process_mapping.json",
+      "lines": [
+        1,
+        23
+      ],
+      "highlight": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        10,
+        12,
+        14,
+        18,
+        19,
+        21,
+        22
+      ],
+      "note": "${row.…} 는 Watch SQL 결과 열, ${…} 는 인스턴스 변수",
+      "narration": "두 번째 파일의 앞부분입니다. 맨 위 두 칸은 프로세스 정의 아이디와 인스턴스 키로, 템플릿대로 cooling_response 와 event_id 입니다. 키를 asset_id 로 두면 같은 설비의 다음 사건이 중복으로 막히겠죠. Watch 매핑은 SQL 이 읽는 네 열을 그대로 잇습니다. 승인 폼은 역할이 설비 담당자이고, 읽기 전용 칸마다 같은 이름의 변수를, 결정 선택지에는 APPROVED 와 REJECTED 를 넣습니다."
+    },
+    {
+      "type": "code",
+      "caption": "실행은 승인값으로",
+      "heading": "process_mapping.json — 뒷부분 빈칸",
+      "file": "labs/integrated/S08/process_mapping.json",
+      "lines": [
+        24,
+        39
+      ],
+      "highlight": [
+        27,
+        30,
+        33,
+        35,
+        38
+      ],
+      "note": "value 를 ${proposed_value} 로 두면 사람이 바꾼 값이 무시된다. 코드는 VALUE_MISMATCH 로 거부한다.",
+      "narration": "뒷부분은 승인 기록과 실행 도구입니다. 가장 중요한 칸은 value 입니다. 사람이 승인 폼에서 값을 바꿀 수 있으니 실행은 제안값이 아니라 승인값, approved_value 로 합니다. 실행 도구는 execute_sim_action, 승인 아이디는 승인 기록 단계가 돌려준 approval_id 입니다. 마지막 칸은 실행으로 넘어가는 결정값 APPROVED 입니다. 거부하면 실행 없이 미실행 종료로 끝납니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "프로세스 입력 매핑 채우기",
+      "heading": "process_mapping.json 채우기",
+      "file": "process_mapping.json",
+      "narration": "빈칸을 모두 채운 모습입니다. 오른쪽을 위에서부터 읽어 보면, cooling_response 정의에 event_id 키, Watch 행의 네 열, 접수 필수 필드 run_id 와 event_type, 설비 담당자 역할과 여섯 개 읽기 전용 기본값, 승인값의 기본은 제안값, 그리고 실행 도구 execute_sim_action 에 승인 아이디와 승인값이 들어갔습니다. 모두 제공 템플릿과 글자까지 같아야 합니다."
+    },
+    {
+      "type": "run",
+      "caption": "모두 채운 뒤 최종 확인",
+      "heading": "최종 실행 — 9개 모두 통과",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "pass",
+      "narration": "마지막으로 실행합니다. 아홉 개 모두 통과했습니다. 이 테스트는 교육용 플랫폼 엔진의 치환 함수 render 로 매핑을 직접 채워 보고, 등록된 cooling_response 정의의 승인 폼 기본값과도 대조합니다. 승인과 실행까지 끝난 실제 인스턴스가 있으면, 접수 폼과 승인 폼, 실행 도구 인자의 event_id 가 같은지도 확인하죠. 새 코드 없이 설정만으로 연결이 끝났습니다."
+    },
+    {
+      "type": "app",
+      "caption": "Watch → 에이전트 → 승인 → 인스턴스 완료",
+      "heading": "사람 승인과 인스턴스 기록 확인",
+      "action": "platform_flow",
+      "params": {
+        "inject": "cooling",
+        "decision": "approve"
+      },
+      "narration": "이제 실제로 흘려 보겠습니다. HYD-01 에 냉각 성능 저하를 주입하고 Watch 를 한 번 실행하면 업무 인스턴스가 시작됩니다. 에이전트가 제안을 마치면 워크리스트에 조치 승인 태스크가 뜨죠. 읽기 전용 칸의 사건 ID, 제안값, 근거 참조를 확인하고 승인자를 넣어 제출합니다. 인스턴스 기록 위쪽에 업무 결과와 설비 재측정이 따로 표시되는 것을 보세요. 업무 완료와 설비 회복은 다른 기록입니다."
+    },
+    {
+      "type": "quiz",
+      "caption": "퀴즈 · 잠시 멈추고 풀어 보세요",
+      "questions": [
+        {
+          "q": "도구 서버에 execute_sim_action 이 있다. 업무 에이전트의 allowed_tools 에도 넣어야 할까?",
+          "choices": [
+            "① 넣는다 — 서버에 있으니까",
+            "② 넣지 않는다 — 실행은 승인 뒤 프로세스의 도구 활동이 한다",
+            "③ SKILL.md 에 승인 규칙을 적었다면 넣어도 된다"
+          ]
+        },
+        {
+          "q": "담당자가 승인 폼에서 제안값 0.8 을 0.9 로 바꿔 승인했다. 실행 도구의 value 는 무엇으로 매핑해야 할까?"
+        },
+        {
+          "q": "승인을 거부한 인스턴스가 끝났다. 이 설비는 회복됐다고 말할 수 있을까?"
+        }
+      ],
+      "narration": "퀴즈입니다. 첫 번째, 도구 서버에 실행 도구가 있습니다. 업무 에이전트의 허용 도구에도 넣어야 할까요. 두 번째, 담당자가 승인 폼에서 제안값 0.8 을 0.9 로 바꿔 승인했습니다. 실행 도구의 값은 무엇으로 매핑해야 할까요. 세 번째, 승인을 거부한 인스턴스가 끝났습니다. 이 설비가 회복됐다고 말할 수 있을까요. 잠시 영상을 멈추고 풀어 보세요."
+    },
+    {
+      "type": "answer",
+      "caption": "해답",
+      "answers": [
+        {
+          "a": "② 넣지 않는다",
+          "why": "서버에 있는 것과 에이전트에 허용하는 것은 다르다. 실행은 사람 승인 뒤 프로세스의 도구 활동이 승인 기록을 검사하며 한다."
+        },
+        {
+          "a": "${approved_value}",
+          "why": "사람이 승인한 값으로 실행한다. 승인값과 다른 실행값은 VALUE_MISMATCH 로 거부된다."
+        },
+        {
+          "a": "아니다",
+          "why": "거부는 미실행 종료다. 사건은 REJECTED, 실행 기록 0건, equipment_outcome 은 null 로 설비 상태를 판정하지 않았다."
+        }
+      ],
+      "narration": "정답입니다. 첫 번째는 2번, 넣지 않습니다. 서버에 있는 것과 에이전트에게 허용하는 것은 다르고, 실행은 사람이 승인한 뒤 프로세스의 도구 활동이 합니다. 두 번째는 승인값, approved_value 입니다. 사람이 승인한 값으로 실행해야 하고, 다르면 코드가 값 불일치로 거부합니다. 세 번째는 아니다입니다. 거부는 실행하지 않고 끝낸 것이라 실행 기록이 0건이고, 설비 재측정 결과는 비어 있습니다."
+    },
+    {
+      "type": "summary",
+      "caption": "오늘 정리",
+      "points": [
+        "새 에이전트 코드 없이 JSON 설정으로 Skill·도구 서버·허용 도구를 할당했다",
+        "허용 도구는 조회·검색·제안 4개, 실행·재측정 도구는 뺐다",
+        "사건 값은 ${...} 매핑으로 접수 폼 → 승인 폼 → 실행 도구까지 같은 event_id 로 이어진다",
+        "실행은 승인값으로, 인스턴스 키는 event_id 로",
+        "프로세스 완료와 설비 회복은 다른 기록이다"
+      ],
+      "narration": "오늘 배운 것을 정리하겠습니다. 새 에이전트 코드를 짜지 않고 JSON 설정만으로 Skill 과 도구 서버, 허용 도구를 할당했습니다. 에이전트에게는 조회, 검색, 제안 도구 네 개만 주고 실행과 재측정 도구는 뺐죠. 사건 값은 달러 중괄호 매핑으로 접수 폼에서 승인 폼, 실행 도구까지 같은 event_id 로 이어졌고, 실행은 승인값으로 합니다. 마지막으로, 프로세스 완료와 설비 회복은 다른 기록이라는 점을 꼭 기억해 두세요."
+    },
+    {
+      "type": "next",
+      "caption": "다음 차수 예고 · 통합반 9회",
+      "points": [
+        "제조 운영 앱이 어느 서버에서 데이터를 읽는지 APP_CONFIG 빈칸을 채운다",
+        "설비·사건·업무 인스턴스 조회 주소를 제공 화면과 맞춘다",
+        "교육용 플랫폼 Apps 에 게시하고 같은 사건 확인 세 가지를 본다"
+      ],
+      "narration": "다음 시간은 2월 3일 수요일, 관제 화면과 배포입니다. 오늘 연결한 업무 흐름을 이번에는 화면 하나로 모아 봅니다. 제조 운영 앱이 설비 목록, 사건 기록, 업무 진행을 각각 어느 서버에서 읽을지 설정과 주소의 빈칸을 채우고, 교육용 플랫폼의 Apps 기능으로 게시해 앱 주소에서 같은 사건을 확인하겠습니다. 오늘 수고 많으셨습니다."
+    }
+  ]
+}

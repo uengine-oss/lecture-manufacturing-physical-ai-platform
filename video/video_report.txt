@@ -19,7 +19,7 @@ CP-C 장면 수납 (scene start dur slack)
   겹침 0건 · 영상 7분 6초
 영상 길이: 426.28s
 $ ffmpeg -y -loglevel error -i /Users/uengine/uengine-platform/lecture/video/work/raw/hydops-raw.webm …
-생성: /Users/uengine/uengine-platform/lecture/video/work/narrated.mp4 (27.5 MB)
+생성: /Users/uengine/uengine-platform/lecture/video/work/narrated.mp4 (39.0 MB)
 
 === ffprobe 요약 ===
 최종 길이: 426.28s
@@ -31,7 +31,7 @@ mean_volume: -24.2 dB
 
 결과: PASS
 
-최종: /Users/uengine/uengine-platform/lecture/video/HydOps_강의시스템_설명영상.mp4 (27.5 MB)
+최종: /Users/uengine/uengine-platform/lecture/video/HydOps_강의시스템_설명영상.mp4 (39.0 MB)
 
 CP-B 화면 검증
 ✓ 관제 화면 렌더(723자)

@@ -45,7 +45,7 @@
 | `image` | `heading`, `image`, `caption`? | 그림·실제 화면 크게 |
 | `code` | `heading`, `file`(lecture 기준), `lines`: [시작, 끝], `highlight`: [줄번호…], `note`? | 코드 편집기 화면. 파일은 실제로 읽어 보여 준다 |
 | `task` | `heading`, `steps`[…], `files`[…] | 실습 과제 안내 (무엇을 고치나) |
-| `run` | `heading`, `cmd`, `expect`: `"fail"`\|`"pass"`, `tail`?(보여 줄 마지막 줄 수, 기본 14) | **실제로 실행해 녹화한다.** `cmd` 는 `lecture/system` 에서 실행. 실습 폴더는 `{WORK}` 로 쓴다 (예: `PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings`). 기대와 결과가 다르면 제작이 멈춘다 |
+| `run` | `heading`, `cmd`, `expect`: `"fail"`\|`"pass"`, `tail`?(보여 줄 마지막 줄 수, 기본 14), `demo`?: true (테스트가 아니라 출력만 보여 주는 실행 — 배지를 '실행 완료'로 표시) | **실제로 실행해 녹화한다.** `cmd` 는 `lecture/system` 에서 실행. 실습 폴더는 `{WORK}` 로 쓴다 (예: `PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings`). 기대와 결과가 다르면 제작이 멈춘다 |
 | `apply_fix` | `heading`, `file`(실습 폴더 안 상대 경로, 예 `mapping.py`), `focus`?[검색어…] | 시작본과 정답본의 차이를 보여 주고 **작업 사본에 실제로 적용**한다 |
 | `app` | `heading`, `action`, `params` | 실제 화면 조작을 녹화 (아래 목록) |
 | `quiz` | `questions`: [{`q`, `choices`?[…]}] ×3 | 문제 화면. 나레이션은 문제를 읽고 "잠시 멈추고 풀어 보세요" |

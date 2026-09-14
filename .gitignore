@@ -5,3 +5,12 @@ __pycache__/
 system/.venv/
 video/node_modules/
 system/out/*.log
+
+# 실습 영상 중간 산출물 (다시 만들 수 있다: video/lab_videos/tools/produce.sh)
+video/lab_videos/build/
+video/work/raw/
+video/work/frames*/
+video/work/narrated*.mp4
+labs_work/
+system/labplatform/data/apps/
+**/.ipynb_checkpoints/

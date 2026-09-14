@@ -1,0 +1,256 @@
+{
+  "id": "P09",
+  "class": "실전반",
+  "session": 9,
+  "title": "아이나루 관제 앱 게시와 통합 시연",
+  "date": "2027-01-29 (금)",
+  "blocks": "확장 B9 / 플랫폼 B9",
+  "textbook": "textbooks/실전반/P09_관제_앱_게시와_통합_시연.md",
+  "lab": "labs/practical/S09",
+  "next": {
+    "id": "과정 마무리",
+    "title": "통합 시연과 최종 평가",
+    "date": "2027-01-29 (금)"
+  },
+  "scenes": [
+    {
+      "type": "title",
+      "caption": "실전반 9회 · 관제 앱 게시와 통합 시연",
+      "subtitle": "흩어진 화면을 하나의 제조 운영 앱으로",
+      "points": [
+        "제공 Vue 화면을 설비·사건·업무 API 에 바인딩한다",
+        "앱을 게시하고 게시 로그를 읽는다",
+        "새 센서 별칭을 정확 일치로만 매핑하고 폐루프를 시연한다"
+      ],
+      "narration": "실전반 마지막, 아홉 번째 실습입니다. 지금까지 만든 것은 여러 곳에 흩어져 있습니다. 설비와 사건은 Ontology Studio 객체로, 승인과 조치와 재측정 기록은 관제 서버 hydops 에, 업무 진행은 교육용 플랫폼의 프로세스에 있죠. 오늘은 제공된 화면을 이 세 곳에 연결해 하나의 제조 운영 앱으로 게시하고, 낯선 센서 이름을 표준 센서에 연결하는 별칭 매핑을 고친 뒤, 사건 하나의 폐루프를 앱에서 확인합니다."
+    },
+    {
+      "type": "concept",
+      "caption": "앱은 데이터를 스스로 갖지 않는다",
+      "heading": "세 서버의 API 를 읽는 창문",
+      "points": [
+        "설비 목록·사건 목록: 플랫폼 :8910 의 Studio 객체와 HAS_EVENT 관계",
+        "사건 기록(승인·조치·재측정)·온도 추이: hydops :8800",
+        "업무 진행·업무 열기·승인 제출: 플랫폼 프로세스 API",
+        "연결 키: asset_id → event_id → instance_id"
+      ],
+      "image": "materials/diagrams/D01_architecture.png",
+      "analogy": "앱은 창고가 아니라 여러 창고를 한 번에 들여다보는 창문이다.",
+      "narration": "먼저 알아 둘 점은 앱이 데이터를 스스로 갖지 않는다는 것입니다. 앱은 창고가 아니라 여러 창고를 한꺼번에 들여다보는 창문이에요. 설비 목록과 사건 목록은 교육용 플랫폼 8910 포트의 Studio 객체와 HAS_EVENT 관계에서 읽고, 승인과 조치와 재측정이 담긴 사건 기록과 온도 추이는 관제 서버 8800 포트에서 읽습니다. 업무 시작과 승인 제출만 프로세스 API 로 보냅니다. 이 셋을 잇는 열쇠가 asset_id, event_id, instance_id 입니다."
+    },
+    {
+      "type": "code",
+      "caption": "같은 사건 확인 · 세 개의 계산식",
+      "heading": "ops-console/index.html — 같은 사건 확인",
+      "file": "system/labplatform/app_templates/ops-console/index.html",
+      "lines": [
+        95,
+        100
+      ],
+      "highlight": [
+        97,
+        98,
+        99
+      ],
+      "note": "화면 event_id · 프로세스 입력 vars.event_id · 조치 기록 actions[].event_id",
+      "narration": "오늘의 합격 기준은 화면 코드의 계산식 세 줄입니다. sameUi 는 화면에서 고른 사건과 hydops 사건 기록의 event_id 가 같은지, sameProcess 는 프로세스 인스턴스의 입력 변수 event_id 가 같은지, sameAction 은 조치 기록이 모두 같은 event_id 를 가리키는지 확인합니다. 세 곳에 체크 표시가 모두 붙어야 화면, 업무, 조치가 같은 사건 이야기를 하고 있다고 말할 수 있습니다."
+    },
+    {
+      "type": "image",
+      "caption": "리허설 앱 화면 · 같은 사건 확인 ✔ 세 개",
+      "heading": "게시된 제조 운영 앱",
+      "image": "materials/screenshots/S18_app_ops_console.png",
+      "narration": "리허설 때 게시한 앱 화면입니다. 왼쪽에 설비 세 대와 HYD-01 의 사건 목록이 있고, 첫 사건을 고르면 온도 추이와 사건 기록이 나옵니다. 상태 CLOSED, 부하 0.8 제안과 SOP 근거, 승인, 명령 SUCCEEDED, 재측정 RECOVERED 55도 이하 연속 56초입니다. 오른쪽 인스턴스 PI-75788b6a 에는 업무 결과 종결과 설비 RECOVERED 가 따로 적혀 있고, 아래 같은 사건 확인 체크가 세 개 모두 붙어 있습니다."
+    },
+    {
+      "type": "app",
+      "caption": "실제 게시 앱에서 사건 열기",
+      "heading": "게시 앱 /apps/hydops-ops/",
+      "action": "app_page",
+      "params": {},
+      "narration": "이제 실제로 게시된 앱을 열어 보겠습니다. 주소는 교육용 플랫폼의 apps 슬래시 hydops-ops 입니다. 사건 목록에서 첫 사건을 누르면 hydops 사건 기록과 프로세스 인스턴스를 불러오고, 맨 아래 같은 사건 확인 칸이 채워집니다. 사건에 따라 결과는 다를 수 있습니다. 예를 들어 승인이 거부된 사건은 조치 기록이 없으니 조치 항목이 표시되지 않죠. 체크 하나가 엑스라면 어느 서버의 어느 필드 연결이 끊겼는지 찾으면 됩니다."
+    },
+    {
+      "type": "task",
+      "caption": "오늘의 실습 과제 S09",
+      "heading": "실습 과제 · 세 파일 고치기",
+      "steps": [
+        "config.js: platform_api 포트, schema_name, 키 이름 process_def_id",
+        "binding.js: 사건 목록 관계, 사건 상세 서버, 업무 시작 입력, 승인값",
+        "alias_mapping.py: 정확 일치만, 모르는 이름은 전체 거부, 표준 단위",
+        "파일 하나 고칠 때마다 테스트를 돌린다"
+      ],
+      "files": [
+        "labs/practical/S09/config.js",
+        "labs/practical/S09/binding.js",
+        "labs/practical/S09/alias_mapping.py",
+        "labs/practical/S09/test_check.py"
+      ],
+      "narration": "오늘 고칠 파일은 세 개입니다. config.js 는 앱 설정, binding.js 는 화면의 호출을 한 표로 옮긴 바인딩 표, alias_mapping.py 는 센서 별칭 매핑 함수입니다. 테스트는 앱을 게시하지도, 별칭을 등록하지도, 관측을 적재하지도 않습니다. 서버에는 조회만 보내고, 서버가 꺼져 있으면 그 테스트 하나만 건너뜁니다. 파일 하나를 고칠 때마다 테스트를 돌려 실패가 줄어드는지 보겠습니다."
+    },
+    {
+      "type": "run",
+      "caption": "시작본 그대로 테스트 실행",
+      "heading": "시작본 테스트 — 16 failed, 4 passed",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "시작본으로 실행하면 스무 개 중 열여섯 개가 실패합니다. 설정의 필수 바인딩 누락, 서버 주소, Studio 바인딩, 사건 상세, 업무 시작 입력, 승인 초안, 그리고 별칭 매핑 테스트들이 줄줄이 빨갛습니다. 통과한 네 개는 제공 화면이 승인값을 폼에서 가져오는지 보는 정적 검사, 제안값 0.8 인 승인 초안, 별칭 충돌 검사, 그리고 TEMP 라는 이름을 매핑하지 않는 경우입니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "포트·스키마 이름·키 이름 고치기",
+      "heading": "config.js 고치기",
+      "file": "config.js",
+      "narration": "먼저 config.js 입니다. 게시할 때 이 설정이 window 점 APP_CONFIG 로 만들어집니다. 왼쪽 시작본은 세 곳이 틀렸습니다. platform_api 가 교육용 플랫폼 8910 이 아니라 관제 서버 8800 을 가리키고, 스키마 이름에 밑줄이 들어가 있고, 키 이름이 process_def 로 줄어 있습니다. 오른쪽처럼 8910, 발행한 이름 그대로의 HydraulicOps, 그리고 게시 코드 apps.py 가 요구하는 키 process_def_id 로 고칩니다. 키가 틀리면 게시가 422 바인딩 누락으로 멈춥니다."
+    },
+    {
+      "type": "code",
+      "caption": "binding.js · 네 곳이 틀렸다",
+      "heading": "binding.js — 화면 바인딩 표",
+      "file": "labs/practical/S09/binding.js",
+      "lines": [
+        4,
+        15
+      ],
+      "highlight": [
+        6,
+        7,
+        10,
+        14
+      ],
+      "note": "HAS_SENSOR 를 쓰면 오류 대신 센서 목록이 조용히 돌아온다.",
+      "narration": "binding.js 는 화면이 부르는 주소를 표로 옮긴 것입니다. 6행의 사건 목록은 HAS_SENSOR 관계를 읽고 있어서 오류 없이 센서 목록이 사건 자리에 들어옵니다. 조용히 틀리는 게 제일 무섭죠. 7행의 사건 상세는 플랫폼에서 읽고 있지만 승인과 조치 기록은 hydops 에만 있습니다. 10행의 업무 시작 입력은 없는 필드 event 점 id 를 쓰고 run_id 가 빠졌습니다. 14행 승인값은 0.8 로 고정되어 있습니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "관계·서버·입력·승인값 고치기",
+      "heading": "binding.js 고치기",
+      "file": "binding.js",
+      "narration": "고친 표입니다. 사건 목록은 related 슬래시 HAS_EVENT, 사건 상세는 hydops_api 에서 읽습니다. 업무 시작 입력은 접수 폼 필수 입력과 똑같이 event_id, asset_id, run_id, event_type 네 값입니다. 승인값은 워크리스트 폼의 approved_value 에서 가져옵니다. 0.8 고정은 수업 준비 중 실제로 고친 결함인데, HYD-02 의 FAN_BOOST 제안 1.3 을 0.8 로 보내 허용 범위 이탈로 이관시킵니다."
+    },
+    {
+      "type": "run",
+      "caption": "설정과 바인딩을 고친 뒤",
+      "heading": "다시 실행 — 남은 것은 별칭 매핑",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "다시 실행하면 설정과 바인딩 테스트가 모두 통과하고, 실패는 일곱 개로 줄었습니다. 서버가 떠 있는 환경이라면 실제로 HAS_EVENT 관계와 사건 기록을 조회하는 테스트도 여기서 통과합니다. 남은 실패는 모두 별칭 매핑 테스트입니다. 비슷한 이름을 매핑해 버리는 문제, 표준 단위를 쓰지 않는 문제, 모르는 이름을 거부하지 않는 문제가 남았습니다."
+    },
+    {
+      "type": "app",
+      "caption": "게시 로그 · 검증 → 번들 → 상태 확인",
+      "heading": "게시된 앱 목록과 게시 단계 조회",
+      "action": "api",
+      "params": {
+        "method": "GET",
+        "url": "{P}/apps"
+      },
+      "narration": "활동 3의 게시 결과를 조회로 확인합니다. 게시된 앱 목록을 GET 으로 부르면 hydops-ops 앱의 단계가 나옵니다. 검증 단계에서 템플릿과 네 가지 바인딩을 확인하고, 번들 단계에서 config.js 와 index.html 과 vue 파일을 복사하고, 상태 확인에서 두 서버가 모두 200 으로 응답해 상태가 PUBLISHED 입니다. 하나라도 응답하지 않으면 경고 상태가 됩니다. 이것은 교육용 게시이고 실제 아이나루 게시와 같은 것은 아닙니다."
+    },
+    {
+      "type": "concept",
+      "caption": "센서 별칭 · 정확히 같을 때만",
+      "heading": "게이트웨이 이름을 표준 센서 코드로",
+      "points": [
+        "TT-101 → TS1 °C, main_pressure → PS1 bar, cooler_flow → FS1 L/min",
+        "tt-101 · TS10 · PS10 · ts1_backup · tank_temp_2 · TEMP 는 매핑하지 않는다",
+        "모르는 이름이 하나라도 섞이면 묶음 전체를 거부한다 (422, 한 행도 적재 안 함)",
+        "단위는 게이트웨이 문자열이 아니라 그래프의 표준 센서 단위"
+      ],
+      "analogy": "택배 주소가 '101동'인데 '1011동'으로 알아서 배달하면 안 된다.",
+      "narration": "마지막 활동은 센서 별칭입니다. 외부 게이트웨이는 온도 센서를 TT-101 같은 자기 이름으로 보냅니다. 그래프에 별칭을 등록해 두면 이 이름을 표준 코드 TS1 로 바꿀 수 있죠. 규칙은 엄격합니다. 표준 코드나 등록된 별칭과 정확히 같을 때만 매핑합니다. 101동 택배를 비슷하다고 1011동에 배달하면 안 되니까요. 모르는 이름이 하나라도 섞이면 묶음 전체를 거부하고, 단위는 표준 센서 단위를 씁니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "정확 일치만 매핑",
+      "heading": "resolve_sensor 고치기",
+      "file": "alias_mapping.py",
+      "function": "resolve_sensor",
+      "narration": "resolve_sensor 부터 고칩니다. 고치기 전에는 대소문자를 모두 소문자로 바꾸고, 코드가 이름 안에 들어 있기만 하면 찾았다고 했습니다. 그래서 PS10 안에 PS1 이 들어 있다는 이유로 압력 센서가 되고, ts1_backup 도 온도 센서가 됐죠. 고친 뒤에는 이름이 표준 코드와 똑같거나 등록된 별칭 목록에 똑같이 있을 때만 돌려줍니다. 추정하지 않는 것이 규칙입니다."
+    },
+    {
+      "type": "run",
+      "caption": "resolve_sensor 고친 뒤",
+      "heading": "다시 실행 — 비슷한 이름은 이제 매핑 안 됨",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "다시 돌리면 비슷한 이름 다섯 개를 추측하지 않는지 확인하는 테스트가 모두 통과하고, 실패는 두 개만 남습니다. 하나는 게이트웨이 행을 표준 코드와 단위로 바꾸는 테스트이고, 다른 하나는 oil_temp_B 처럼 모르는 이름이 섞인 묶음을 거부하는 테스트입니다. 둘 다 map_gateway_rows 함수에 있는 문제입니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "모르는 이름은 전체 거부 · 표준 단위",
+      "heading": "map_gateway_rows 고치기",
+      "file": "alias_mapping.py",
+      "function": "map_gateway_rows",
+      "narration": "map_gateway_rows 를 고칩니다. 고치기 전에는 모르는 이름을 만나면 continue 로 조용히 건너뛰었습니다. 적재 건수만 줄고 아무도 모르게 되죠. 고친 뒤에는 모르는 이름을 unknown 에 모아 두었다가, 하나라도 있으면 UnknownAliasError 로 묶음 전체를 거부합니다. 또 단위는 게이트웨이가 보낸 degC 나 lpm 이 아니라 그래프의 표준 단위, 섭씨와 bar 와 L/min 을 씁니다."
+    },
+    {
+      "type": "run",
+      "caption": "모두 고친 뒤 최종 확인",
+      "heading": "최종 실행 — 모두 통과",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "pass",
+      "narration": "마지막으로 실행하면 모두 초록색으로 통과합니다. 게이트웨이 행 네 개가 TS1 섭씨, PS1 bar, FS1 L/min, TS1 섭씨로 매핑되고 품질 검사도 모두 OK 이며, oil_temp_B 가 섞인 묶음은 거부됩니다. 수업에서는 이어서 강사와 함께 냉각 이상 사건 하나를 앱에서 열고, 승인하고, 재측정 RECOVERED 까지 확인한 뒤 같은 사건 확인 화면을 캡처해 제출합니다."
+    },
+    {
+      "type": "quiz",
+      "caption": "퀴즈 · 잠시 멈추고 풀어 보세요",
+      "questions": [
+        {
+          "q": "앱의 같은 사건 확인에서 '프로세스 입력 event_id' 만 ✘ 다. 어느 연결을 의심해야 할까?"
+        },
+        {
+          "q": "게이트웨이가 PS10 이라는 센서 이름을 보냈다. PS1 과 비슷하니 압력으로 매핑해도 될까?"
+        },
+        {
+          "q": "게시 상태가 PUBLISHED_WITH_WARNINGS 다. 앱 URL 이 열리니 성공으로 넘겨도 될까?",
+          "choices": [
+            "① 된다",
+            "② 안 된다, 상태 확인 로그의 응답 코드를 먼저 본다"
+          ]
+        }
+      ],
+      "narration": "퀴즈입니다. 첫 번째, 앱의 같은 사건 확인에서 프로세스 입력 event_id 만 엑스 표시입니다. 어느 연결을 의심해야 할까요. 두 번째, 게이트웨이가 PS10 이라는 이름을 보냈습니다. PS1 과 비슷하니 압력 센서로 매핑해도 될까요. 세 번째, 게시 상태가 PUBLISHED_WITH_WARNINGS 인데 앱 주소는 열립니다. 성공으로 넘겨도 될까요. 잠시 멈추고 풀어 보세요."
+    },
+    {
+      "type": "answer",
+      "caption": "해답",
+      "answers": [
+        {
+          "a": "업무 시작 입력 또는 인스턴스 조회",
+          "why": "sameProcess 는 플랫폼 인스턴스의 vars.event_id 를 본다. 시작 입력의 event_id 나 process_ref.instance_id 연결이 틀렸다."
+        },
+        {
+          "a": "안 된다. 거부한다",
+          "why": "정확 일치만 매핑한다. 모르는 이름이 섞인 묶음은 422 로 한 행도 적재하지 않는다."
+        },
+        {
+          "a": "② 안 된다",
+          "why": "파일은 게시됐지만 바인딩된 서버 중 하나가 200 이 아니다. 설비·사건이 비어 보인다."
+        }
+      ],
+      "narration": "정답입니다. 첫 번째, 이 항목은 교육용 플랫폼 인스턴스의 입력 변수 event_id 를 봅니다. 그러니 업무 시작 입력의 event_id 나 인스턴스를 찾는 연결을 의심해야 합니다. 두 번째는 안 됩니다. 정확히 같은 이름만 매핑하고, 모르는 이름이 섞인 묶음은 한 행도 적재하지 않습니다. 세 번째는 2번입니다. 파일은 복사됐지만 바인딩된 서버 중 하나가 응답하지 않았다는 뜻이라, 앱을 열면 설비와 사건이 비어 보입니다."
+    },
+    {
+      "type": "summary",
+      "caption": "오늘 정리",
+      "points": [
+        "앱은 Studio 객체·hydops 사건 기록·프로세스 API 를 읽는 창문이다",
+        "설정 키와 관계 이름, 서버 주소는 실제 API 와 한 글자도 다르지 않게 맞춘다",
+        "업무 시작 입력은 접수 폼 필수 입력과 같고, 승인값은 폼에서 가져온다",
+        "센서 별칭은 정확 일치만, 모르는 이름은 묶음 전체 거부, 단위는 표준 단위"
+      ],
+      "narration": "정리하겠습니다. 앱은 데이터를 갖지 않고 Studio 객체, hydops 사건 기록, 프로세스 API 를 읽는 창문이었습니다. 그래서 설정 키, 관계 이름, 서버 주소가 실제 API 와 한 글자라도 다르면 멈추거나 조용히 틀립니다. 업무 시작 입력은 접수 폼 필수 입력과 같아야 하고, 승인값은 고정값이 아니라 폼에서 가져옵니다. 센서 별칭은 정확히 같을 때만 매핑하고, 모르는 이름이 섞이면 묶음 전체를 거부합니다."
+    },
+    {
+      "type": "next",
+      "caption": "과정 마무리 · 통합 시연과 최종 평가",
+      "points": [
+        "최종 시연: 한 event_id 의 감지·근거·승인·조치·재측정을 앱에서 보여 준다",
+        "평가: 데이터와 온톨로지 25 · 탐지와 근거 25 · 승인 조치와 재측정 30 · 플랫폼 연결과 설명 20",
+        "합격 목표: 근거 없는 조치·승인 없는 실행·중복 실행·재측정 없는 회복 판정 모두 0건"
+      ],
+      "narration": "이것으로 실전반 실습이 모두 끝났습니다. 과정 마무리로 팀별 통합 시연을 합니다. 사건 하나의 감지, 근거, 승인, 조치, 재측정이 같은 event_id 로 이어지는 것을 앱에서 보여 주세요. 평가는 데이터와 온톨로지 25점, 탐지와 근거 25점, 승인 조치와 재측정 30점, 플랫폼 연결과 설명 20점입니다. 정확도 숫자보다 중요한 목표는 근거 없는 조치, 승인 없는 실행, 중복 실행, 재측정 없는 회복 판정이 모두 0건인 것입니다. 그동안 정말 수고 많으셨습니다."
+    }
+  ]
+}

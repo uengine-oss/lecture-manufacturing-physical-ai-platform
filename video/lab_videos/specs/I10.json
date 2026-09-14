@@ -1,0 +1,197 @@
+{
+  "id": "I10",
+  "class": "통합반",
+  "session": 10,
+  "title": "전체 아키텍처 폐루프 시연",
+  "date": "2027-02-04 (목)",
+  "blocks": "확장 B1 · B5 · B8 · B9",
+  "textbook": "textbooks/통합반/I10_전체_아키텍처_폐루프_시연.md",
+  "lab": "labs/integrated/S10",
+  "next": {"id": "과정 마무리", "title": "최종 발표와 평가", "date": "2027-02-04 (목)"},
+  "scenes": [
+    {
+      "type": "title",
+      "caption": "통합반 10회 · 전체 아키텍처 폐루프 시연",
+      "subtitle": "같은 event_id 의 감지·근거·조치·재측정을 기록으로 증명한다",
+      "points": ["완성 아키텍처에서 사건 하나가 남기는 기록을 따라간다", "명령 성공과 재측정 회복이 다른 기록임을 시연으로 본다", "제출 검사기 check_submission.py 의 빈칸을 채워 네 가지 합격 목표를 확인한다"],
+      "narration": "통합반 마지막 실습입니다. 1회부터 9회까지 채운 빈칸들이 정말 하나의 시스템으로 돌아가는지, 오늘은 시연하고 기록으로 증명합니다. 설비 이상 사건 하나가 근거 확인, 사람 승인, 조치, 재측정까지 가는 동안 남긴 기록을 같은 event_id 로 모으고, 네 가지 합격 목표를 지켰는지 제출 검사기로 확인하겠습니다. 마지막에는 과정 마무리 발표와 평가도 안내합니다."
+    },
+    {
+      "type": "concept",
+      "caption": "네 계층의 기록은 event_id 로 이어진다",
+      "heading": "사건 하나가 네 계층을 지나며 남기는 기록",
+      "points": ["Data Sources (B1·B2·B3): observation — 값·단위·품질 플래그", "Ontology (B4·B6): 적용 SOP·허용 조치, 인용한 SOP 절", "Agents (B5·B7): event 의 근거 요약·규칙 버전, proposal 의 도구 호출·인용", "Orchestration (B8·B9): approval · action_log(중복 방지 키) · verification"],
+      "image": "materials/diagrams/D01_architecture.png",
+      "analogy": "병원 진료 기록처럼, 접수·검사·처방·재검사가 모두 같은 환자 번호로 묶여 있어야 한 사람의 이야기가 된다.",
+      "narration": "완성 아키텍처 그림입니다. 한 학기 동안 만든 블록이 네 계층에 놓여 있죠. 사건 하나가 이 계층을 지나면 곳곳에 기록이 남습니다. 관측값, 인용한 SOP 절, 에이전트의 도구 호출과 제안, 승인, 실행, 재측정 기록까지요. 병원에서 접수, 검사, 처방, 재검사 기록이 모두 같은 환자 번호로 묶여야 한 사람의 진료 이야기가 되듯, 이 기록들도 모두 같은 event_id 로 이어져야 합니다."
+    },
+    {
+      "type": "concept",
+      "caption": "네 가지 합격 목표를 기록 조건으로",
+      "heading": "합격 목표 = 기록으로 확인할 수 있는 조건",
+      "points": ["근거 없는 조치 0건: 실행했다면 인용 1개 이상, 인용 검증 문제 0개, 인용 절 본문이 그래프에 있음", "승인 없는 실행 0건: 같은 사건의 APPROVED 승인, 승인 시각 ≤ 실행 시각, 승인값 = 실행값", "중복 실행 0건: idempotency_key 가 겹치지 않고 성공한 조치 1건 이하", "재측정 없는 회복 판정 0건: CLOSED 면 조치 이후 창의 RECOVERED 1건 이상, 종결 행위자는 verifier"],
+      "image": "materials/diagrams/D03_state_flow.png",
+      "note": "이 목표는 교육용 시험 사례의 목표다. 60°C·10초 경보, 부하 0.8, 55°C 회복 기준도 모두 교육용 가정값이다.",
+      "narration": "그림은 사건 상태가 흘러가는 길입니다. 위쪽 줄이 감지부터 종결까지의 정상 경로이고, 아래로 떨어지는 빨간 점선이 센서 점검, 보류, 미실행 종료, 이관 같은 분기죠. 맨 아래 상자에 오늘의 합격 목표 네 가지가 적혀 있습니다. 근거 없는 조치, 승인 없는 실행, 중복 실행, 재측정 없는 회복 판정이 모두 0건이어야 합니다. 오늘은 이 말을 기록으로 확인할 수 있는 조건으로 바꿔서 검사기에 넣습니다."
+    },
+    {
+      "type": "app",
+      "caption": "심각한 저하 · 명령 성공 ≠ 회복",
+      "heading": "관제 화면 · 심각한 냉각 저하 승인 후 재측정",
+      "action": "dashboard",
+      "params": {"asset": "HYD-01", "inject": "severe", "decision": "approve"},
+      "narration": "관제 화면에서 HYD-01 에 심각한 냉각 저하를 주입해 보겠습니다. 온도가 60도 점선을 넘어 10초 이어지면 사건이 생기고, 에이전트가 SOP 를 인용해 부하 감소를 제안합니다. 승인 버튼을 누르면 부하 감소 명령이 실행되죠. 사건 흐름 칸을 보세요. 명령 결과는 SUCCEEDED 인데, 조치 뒤 새 관측으로 잰 재측정은 회복이 아니라 미개선으로 나오고 사건은 이관됩니다. 명령이 성공했다고 설비가 회복된 것은 아니라는 걸 보여 주는 장면입니다."
+    },
+    {
+      "type": "task",
+      "caption": "오늘의 실습 과제 S10",
+      "heading": "실습 과제 · 제출 검사기의 빈칸 11곳",
+      "steps": ["시작본 테스트를 돌려 본다", "규칙 1·2: 인용 0개 조건, 승인 ID·실행 시각 필드", "규칙 3·4: 중복 방지 키, 재측정 창 시작 필드, 회복 재측정 최소 개수", "상수: 성공 조치 최대 개수, 승인·회복·종결 값, 종결 행위자", "테스트 9개 통과 후 --all 로 실제 사건 전체를 검사한다"],
+      "files": ["labs/integrated/S10/check_submission.py", "labs/integrated/S10/fixtures/event_closed_f81e.json", "labs/integrated/S10/test_check.py"],
+      "narration": "오늘 채울 파일은 check_submission.py 하나이고, 빈칸은 11곳입니다. 네 규칙 함수 안의 필드 이름과 조건, 그리고 맨 위 상수 다섯 개죠. 테스트는 세 가지를 봅니다. 실제 기록인 정상 회복 사건과 승인 거부 사건이 통과하는지, 실제 기록을 한 곳만 바꾼 위반 사례들이 모두 걸리는지, 그리고 관제 API 의 실제 사건 전체가 통과하는지입니다. 검사기는 GET 만 합니다."
+    },
+    {
+      "type": "run",
+      "caption": "시작본 그대로 테스트 실행",
+      "heading": "시작본 테스트 — 9개 실패",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "시작본 그대로 실행합니다. 아홉 개가 모두 실패했습니다. 요약 줄 바로 위를 보면 KeyError, 밑줄 네 개라는 오류가 check_submission.py 73번 줄에서 났다고 나오죠. 빈칸 이름 그대로 기록에서 필드를 찾으려니 그런 키가 없다는 뜻입니다. 검사기는 규칙 네 개를 한꺼번에 돌리기 때문에, 한 곳만 비어 있어도 모든 검사가 멈춥니다. 규칙 1부터 차례로 채워 보겠습니다."
+    },
+    {
+      "type": "code",
+      "caption": "규칙 1 · 근거 없는 조치 0건",
+      "heading": "rule_evidence — 인용 0개 조건",
+      "file": "labs/integrated/S10/check_submission.py",
+      "lines": [53, 64],
+      "highlight": [54, 58, 62],
+      "note": "실행 기록이 없으면 해당 없음. 실행했다면 인용이 있어야 하고, 인용한 절 본문이 그래프에 있어야 한다.",
+      "narration": "규칙 1, 근거 없는 조치 0건입니다. 첫 노란 줄을 보면 실행 기록이 없는 사건은 해당 없음으로 통과시킵니다. 실행했다면 제안의 인용 목록을 꺼내고, 가운데 노란 줄의 빈칸에서 인용이 몇 개일 때 문제로 적을지 정합니다. 마지막 노란 줄은 인용한 문서, 버전, 절이 실제 그래프 본문에 있는지 확인하죠. 인용이 있다는 것만이 아니라, 그 절이 정말 존재하는지까지 봅니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "인용이 0개면 위반",
+      "heading": "rule_evidence 채우기",
+      "file": "check_submission.py",
+      "function": "rule_evidence",
+      "narration": "빈칸에는 0 이 들어갑니다. 실행 기록이 있는데 인용이 0개면 실행했는데 제안에 SOP 인용이 없다는 문제를 적습니다. 정상 회복 사건 f81e 는 SOP-COOL-001 버전 2의 4절과 SOP-LOAD-001 버전 1의 4절, 이렇게 인용 두 개가 있어서 통과합니다. 테스트는 이 인용을 지우거나, 그래프에 없는 9절로 바꾸면 걸리는지도 확인합니다."
+    },
+    {
+      "type": "code",
+      "caption": "규칙 2 · 승인 없는 실행 0건",
+      "heading": "rule_approval — 승인 ID 와 실행 시각 필드",
+      "file": "labs/integrated/S10/check_submission.py",
+      "lines": [68, 88],
+      "highlight": [73, 77, 81, 83],
+      "note": "실행 기록마다: 가리키는 승인이 있고, APPROVED 이고, 승인 시각 ≤ 실행 시각, 승인값 = 실행값",
+      "narration": "규칙 2, 승인 없는 실행 0건입니다. 실행 기록 하나하나에 대해 네 가지를 봅니다. 73번 줄은 실행 기록이 가리키는 승인 ID 필드로 승인을 찾고, 77번 줄은 그 결정이 APPROVED 인지, 81번 줄은 승인 시각이 실행 시각보다 앞서는지, 83번 줄은 승인값과 실행값이 같은지 확인하죠. 빈칸은 승인 ID 필드와 실행 시각 필드 두 곳입니다. 앞에서 난 오류가 바로 73번 줄이었습니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "approval_id · executed_at",
+      "heading": "rule_approval 채우기",
+      "file": "check_submission.py",
+      "function": "rule_approval",
+      "narration": "승인 ID 필드는 approval_id, 실행 시각 필드는 executed_at 입니다. f81e 사건의 실제 기록을 보면 승인 APR-f5b6f889a6 은 13시 10분 32.555초, 실행 ACT-d35982d947 은 32.664초로 승인이 먼저이고, 승인값과 실행값은 모두 0.8 입니다. 테스트는 승인을 지우거나, REJECTED 로 바꾸거나, 승인 시각을 실행 뒤로 옮기면 걸리는지 봅니다."
+    },
+    {
+      "type": "run",
+      "caption": "규칙 1·2 를 채운 뒤 다시 실행",
+      "heading": "다시 실행 — 오류 위치가 옮겨 갔다",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "다시 실행하면 여전히 아홉 개 실패입니다. 그런데 오류 줄을 보세요. 이번에는 93번 줄의 KeyError 입니다. 규칙 1과 2는 지나갔고, 규칙 3에서 멈췄다는 뜻이죠. 이렇게 실패 개수가 그대로여도 오류 위치가 뒤로 옮겨 가면 앞의 빈칸은 제대로 채운 것입니다. 실패 메시지의 줄 번호를 읽는 습관이 여기서 도움이 됩니다."
+    },
+    {
+      "type": "code",
+      "caption": "규칙 3·4 · 중복 실행과 재측정",
+      "heading": "rule_duplicate · rule_verification",
+      "file": "labs/integrated/S10/check_submission.py",
+      "lines": [92, 120],
+      "highlight": [93, 98, 112, 115, 118],
+      "note": "CLOSED 는 판정 결과이지 증거가 아니다. 증거는 조치 이후 창의 RECOVERED 기록이다.",
+      "narration": "규칙 3은 중복 실행 0건입니다. 93번 줄에서 실행 기록마다 중복 방지 키를 모으고, 키가 겹치거나 성공한 조치가 허용 개수보다 많으면 문제로 적습니다. 규칙 4는 재측정 없는 회복 판정 0건이죠. 112번 줄은 판정이 RECOVERED 이고 재측정 창 시작이 조치 시각 이후인 기록만 고르고, 115번 줄은 그런 기록이 최소 몇 개 있어야 하는지, 118번 줄은 CLOSED 로 바꾼 행위자가 누구인지 봅니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "idempotency_key",
+      "heading": "rule_duplicate 채우기",
+      "file": "check_submission.py",
+      "function": "rule_duplicate",
+      "narration": "중복 방지 키 필드는 idempotency_key 입니다. 키는 사건 ID, 조치 ID, 시도 번호를 이어 붙인 모양이라 f81e 사건은 REDUCE_LOAD 콜론 1 로 끝나는 키 하나뿐입니다. 테스트는 같은 실행 기록을 한 번 더 붙이거나, 키만 2번으로 바꿔 성공한 조치를 두 건으로 만들면 걸리는지 확인합니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "window_start · 최소 1건",
+      "heading": "rule_verification 채우기",
+      "file": "check_submission.py",
+      "function": "rule_verification",
+      "narration": "재측정 창 시작 필드는 window_start, 최소 개수는 1입니다. 조치 이후에 시작한 창에서 RECOVERED 가 한 건도 없으면 CLOSED 가 증거 없이 붙은 것이죠. 흔한 실수는 이 규칙을 상태가 CLOSED 면 통과로 채우는 것입니다. CLOSED 는 판정 결과일 뿐 증거가 아닙니다. 테스트는 재측정을 지우거나, 미개선으로 바꾸거나, 창을 조치 이전으로 옮기면 걸리는지 봅니다."
+    },
+    {
+      "type": "code",
+      "caption": "마지막 빈칸 · 상수 다섯 개",
+      "heading": "check_submission.py — 맨 위 상수",
+      "file": "labs/integrated/S10/check_submission.py",
+      "lines": [20, 27],
+      "highlight": [23, 24, 25, 26, 27],
+      "note": "성공 조치 최대 개수는 hydops/config.py 의 max_action_attempts 를 따른다.",
+      "narration": "마지막 빈칸은 파일 맨 위의 상수 다섯 개입니다. 규칙 함수들이 모두 이 값을 가져다 쓰기 때문에, 여기가 비어 있으면 규칙을 다 채워도 비교가 제대로 되지 않습니다. 같은 사건에서 성공한 조치의 최대 개수, 실행을 허락하는 승인 결정값, 회복으로 인정하는 재측정 판정값, 회복 뒤 사건 상태, 그리고 CLOSED 로 바꿀 수 있는 유일한 행위자입니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "1 · APPROVED · RECOVERED · CLOSED · verifier",
+      "heading": "상수 채우기 — 파일 완성",
+      "file": "check_submission.py",
+      "narration": "상수를 채웠습니다. 성공한 조치는 최대 1건, 승인 결정값은 APPROVED, 회복 판정값은 RECOVERED, 종결 상태는 CLOSED, 그리고 종결 행위자는 verifier 입니다. 이 마지막 값이 중요합니다. 명령을 실행한 executor 가 아니라 재측정을 판정한 verifier 만 사건을 종결할 수 있다는 뜻이죠. 테스트도 종결 행위자를 executor 로 바꾼 기록은 위반으로 잡습니다."
+    },
+    {
+      "type": "run",
+      "caption": "검사기를 완성한 뒤 최종 확인",
+      "heading": "최종 실행 — 9개 모두 통과",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "pass",
+      "narration": "이제 테스트를 실행합니다. 아홉 개 모두 통과했습니다. 실제로 기록된 정상 회복 사건과 승인 거부 사건은 네 목표를 모두 통과했고, 그 기록을 한 곳씩 바꾼 위반 사례들은 빠짐없이 걸렸습니다. 제출 기록 초안에서 네 칸의 event_id 가 모두 같고 통과 표시가 네 개인지도 확인했죠. 마지막 검사는 관제 API 의 실제 사건 전체를 읽어 모두 통과하는지 봅니다."
+    },
+    {
+      "type": "run",
+      "caption": "실제 사건 전체 검사 · --all",
+      "heading": "check_submission.py --all — 네 목표 확인",
+      "cmd": "PYTHONPATH=. .venv/bin/python {WORK}/check_submission.py --all",
+      "expect": "pass",
+      "narration": "완성한 검사기로 기록된 사건 전체를 검사해 봅니다. 한 줄에 사건 하나씩, 사건 ID 와 최종 상태, 그리고 네 목표의 결과가 찍힙니다. CLOSED 사건도, 거부된 REJECTED 사건도, 센서 점검으로 끝난 SENSOR_CHECK 사건도, 이관된 ESCALATED 사건도 모두 체크 네 개입니다. 실행하지 않은 사건은 해당 없음으로 통과하고, 실행한 사건은 근거와 승인과 재측정 기록으로 통과한 것입니다."
+    },
+    {
+      "type": "quiz",
+      "caption": "퀴즈 · 잠시 멈추고 풀어 보세요",
+      "questions": [
+        {"q": "명령 결과는 SUCCEEDED 인데 재측정이 NOT_IMPROVED 다. 제출 기록에 무엇이라고 적어야 할까?", "choices": ["① 조치 실패", "② 명령은 성공했지만 설비는 회복하지 않았다 — 이관", "③ 회복"]},
+        {"q": "사건 status 가 CLOSED 인데 verifications 가 비어 있다. 검사기는 통과시켜야 할까?"},
+        {"q": "승인값은 0.8 인데 실행 기록의 requested_value 가 0.4 다. 네 목표 중 어느 것을 위반했나?"}
+      ],
+      "narration": "퀴즈입니다. 첫 번째, 명령 결과는 SUCCEEDED 인데 재측정은 NOT_IMPROVED 입니다. 제출 기록에 뭐라고 적어야 할까요. 두 번째, 사건 상태는 CLOSED 인데 재측정 기록이 비어 있습니다. 검사기가 통과시켜야 할까요. 세 번째, 승인값은 0.8 인데 실행 기록의 요청값이 0.4 입니다. 네 가지 목표 중 어느 것을 어긴 걸까요. 잠시 영상을 멈추고 풀어 보세요."
+    },
+    {
+      "type": "answer",
+      "caption": "해답",
+      "answers": [
+        {"a": "② 명령은 성공, 회복은 안 됨 — 이관", "why": "command_status 와 verification.outcome 은 다른 필드다. 실패한 것은 명령이 아니라 회복이다."},
+        {"a": "통과시키면 안 된다", "why": "CLOSED 는 판정 결과이지 증거가 아니다. 조치 이후 창의 RECOVERED 재측정이 1건 이상 있어야 한다."},
+        {"a": "승인 없는 실행 0건", "why": "승인값과 실행값이 다르면 승인받은 조치가 아니다. 코드는 이런 실행을 VALUE_MISMATCH 로 거부한다."}
+      ],
+      "narration": "정답입니다. 첫 번째는 2번입니다. 명령 결과와 재측정 판정은 다른 필드라서, 명령은 성공했지만 설비는 회복하지 않아 이관됐다고 적습니다. 두 번째는 통과시키면 안 됩니다. CLOSED 는 판정 결과일 뿐이고, 증거는 조치 이후 창의 RECOVERED 기록입니다. 세 번째는 승인 없는 실행 0건 위반입니다. 승인값과 다른 값으로 실행했다면 승인받은 조치가 아니죠. 실제 코드는 이런 실행을 값 불일치로 거부합니다."
+    },
+    {
+      "type": "summary",
+      "caption": "오늘 정리",
+      "points": ["사건 하나의 기록은 네 계층을 지나도 같은 event_id 로 이어진다", "네 가지 합격 목표를 기록 조건으로 바꿔 check_submission.py 에 채웠다", "명령 성공(SUCCEEDED)과 재측정 회복(RECOVERED)은 다른 필드다", "CLOSED 는 증거가 아니다 — 조치 이후 창의 RECOVERED 와 verifier 가 증거다", "실제 기록과 한 곳만 바꾼 위반 사례로 검사기를 검증했다"],
+      "narration": "오늘을 정리하겠습니다. 사건 하나의 기록은 네 계층을 지나도 같은 event_id 로 이어집니다. 네 가지 합격 목표를 기록으로 확인할 수 있는 조건으로 바꿔 검사기에 채웠고, 실제 기록과 한 곳만 바꾼 위반 사례로 그 검사기가 제대로 잡는지 확인했습니다. 명령 성공과 재측정 회복은 다른 필드이고, CLOSED 라는 상태는 증거가 아니라는 점, 끝까지 기억해 두세요."
+    },
+    {
+      "type": "next",
+      "caption": "과정 마무리 · 최종 발표와 평가",
+      "points": ["발표: 팀원마다 완성 아키텍처에서 자기 블록을 짚고 사건 기록 한 줄이 어떻게 생겼는지 설명한다", "제출물: 같은 event_id 의 감지·근거·조치·재측정 기록 (check_submission.py --md 초안 + 제출 양식)", "평가: 데이터와 온톨로지 25 · 탐지와 근거 25 · 승인 조치와 재측정 30 · 플랫폼 연결과 설명 20", "합격 목표: 근거 없는 조치 · 승인 없는 실행 · 중복 실행 · 재측정 없는 회복 판정 모두 0건"],
+      "narration": "이제 과정을 마무리합니다. 오늘 활동 4에서 팀원 한 명씩 완성 아키텍처 그림에서 자기 블록을 짚고, 제출한 사건 기록이 그 블록에서 어떻게 생겼는지 발표합니다. 제출물은 같은 event_id 의 감지, 근거, 조치, 재측정 기록 한 장입니다. 평가는 데이터와 온톨로지 25점, 탐지와 근거 25점, 승인 조치와 재측정 30점, 플랫폼 연결과 설명 20점입니다. 합격 목표는 네 가지 모두 0건입니다. 열 번의 수업, 정말 수고 많으셨습니다."
+    }
+  ]
+}

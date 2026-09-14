@@ -36,7 +36,7 @@ const SECTIONS = ['시작', '기본 개념', '실습', '퀴즈', '해답', '요�
 let seenLab = false;
 function sectionOf(sc) {
   if (sc.type === 'title') return '시작';
-  if (['task', 'run', 'apply_fix', 'app'].includes(sc.type)) seenLab = true;
+  if (['task', 'run', 'apply_fix'].includes(sc.type)) seenLab = true;
   if (sc.type === 'quiz') return '퀴즈';
   if (sc.type === 'answer') return '해답';
   if (sc.type === 'summary') return '요약';
@@ -70,8 +70,8 @@ h1{font-size:58px;margin:0 0 18px;letter-spacing:-.02em;line-height:1.2}h2{font-
 .ln{display:flex}.ln i{width:78px;text-align:right;padding-right:20px;color:#94a3b8;font-style:normal;flex:none}.ln code{white-space:pre;padding:0}
 .ln.hl{background:#fef3c7;box-shadow:inset 6px 0 0 #f59e0b}
 .diff{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%}
-.dcol{background:#fff;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;color:#0f172a}.dh{padding:10px 18px;font:700 21px Pretendard,sans-serif}.dh.b{background:#fee2e2;color:#991b1b}.dh.a{background:#dcfce7;color:#166534}
-.dcode{font:19px/1.5 ui-monospace,Menlo,monospace;padding:10px 0;overflow:hidden}.dl{white-space:pre;padding:0 16px}.dl.del{background:#fee2e2}.dl.add{background:#dcfce7}.dl.gap{color:#94a3b8;text-align:center}
+.dcol{background:#fff;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;color:#0f172a}.dh{padding:10px 18px;font:700 21px Pretendard,sans-serif;margin-bottom:6px}.dh.b{background:#fee2e2;color:#991b1b}.dh.a{background:#dcfce7;color:#166534}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content;column-gap:14px;background:#fff;border-radius:14px;overflow:hidden;align-content:start;color:#0f172a}.dl{white-space:pre-wrap;word-break:break-all;font:var(--dfs,19px)/1.4 ui-monospace,Menlo,monospace;padding:1px 16px}.dl.del{background:#fee2e2}.dl.add{background:#dcfce7}.dl.pad{background:#f8fafc}.dl.gap{color:#94a3b8;text-align:center}
 .steps{counter-reset:s;list-style:none;padding:0;margin:0}.steps li{counter-increment:s;font-size:31px;margin:0 0 18px;padding-left:64px;position:relative;line-height:1.4}
 .steps li:before{content:counter(s);position:absolute;left:0;top:0;width:44px;height:44px;border-radius:12px;background:#1d4ed8;display:grid;place-items:center;font-weight:800;font-size:24px}
 .files{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}.files span{font:22px ui-monospace,Menlo,monospace;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px}
@@ -79,7 +79,7 @@ h1{font-size:58px;margin:0 0 18px;letter-spacing:-.02em;line-height:1.2}h2{font-
 .tbar{background:#141c2b;padding:10px 18px;display:flex;gap:9px;align-items:center}.tbar i{width:14px;height:14px;border-radius:50%;display:inline-block}.tbar b{margin-left:14px;color:#94a3b8;font:500 19px ui-monospace,Menlo,monospace}
 .tout{flex:1;padding:16px 22px;font:21px/1.5 ui-monospace,Menlo,monospace;color:#d1d9e6;overflow:hidden;white-space:pre-wrap;word-break:break-all}
 .tout .cmd{color:#7dd3fc}.tout .fail{color:#fca5a5}.tout .pass{color:#86efac}.tout .dim{color:#64748b}
-.result{position:absolute;right:40px;top:70px;font:800 30px Pretendard,sans-serif;padding:10px 24px;border-radius:12px;display:none}.result.fail{display:block;background:#dc2626;color:#fff}.result.pass{display:block;background:#16a34a;color:#fff}
+.result{position:absolute;right:40px;top:70px;font:800 30px Pretendard,sans-serif;padding:10px 24px;border-radius:12px;display:none}.result.fail{display:block;background:#dc2626;color:#fff}.result.pass{display:block;background:#16a34a;color:#fff}.result.demo{display:block;background:#475569;color:#fff}
 .bigtitle{display:flex;flex-direction:column;justify-content:center;height:100%}.kick{color:#38bdf8;font-size:30px;font-weight:800;letter-spacing:.04em;margin-bottom:14px}
 .meta{display:flex;gap:14px;margin:10px 0 34px;flex-wrap:wrap}.meta span{font-size:24px;background:rgba(255,255,255,.08);padding:8px 18px;border-radius:12px;color:#cbd5e1}
 .nextbox{border:2px solid #38bdf8;border-radius:22px;padding:34px 40px;background:rgba(56,189,248,.08)}`;
@@ -132,32 +132,48 @@ function codeInner(sc) {
   <script>document.querySelectorAll('code').forEach(c=>{c.innerHTML=hljs.highlight(c.textContent,{language:'python'}).value})</script>`;
 }
 
+function blockOf(text, name) {
+  const lines = text.split('\n');
+  let st = lines.findIndex(l => l.startsWith(`def ${name}(`) || l.startsWith(`class ${name}`) || l.startsWith(`async def ${name}(`));
+  if (st < 0) return text;
+  while (st > 0 && lines[st - 1].startsWith('@')) st--;
+  let en = lines.findIndex((l, j) => j > st && l && !/^\s/.test(l) && !/^[)\]}#]/.test(l));
+  if (en < 0) en = lines.length;
+  while (en > st && !lines[en - 1].trim()) en--;
+  return lines.slice(st, en).join('\n');
+}
+
 function diffInner(sc, before, after) {
-  const parts = diffLines(before, after);
-  const left = [], right = [];
-  const CONTEXT = 2;
-  parts.forEach((p, idx) => {
-    const ls = p.value.replace(/\n$/, '').split('\n');
-    if (p.added) ls.forEach(l => { right.push({ t: 'add', l }); });
-    else if (p.removed) ls.forEach(l => { left.push({ t: 'del', l }); });
+  const b = sc.function ? blockOf(before, sc.function) : before;
+  const a = sc.function ? blockOf(after, sc.function) : after;
+  const parts = diffLines(b, a);
+  const rows = [];  // [{l:{t,text}, r:{t,text}}]
+  const split = v => v.replace(/\n$/, '').split('\n');
+  for (let k = 0; k < parts.length; k++) {
+    const p = parts[k];
+    if (p.removed && parts[k + 1]?.added) {
+      const L = split(p.value), R = split(parts[k + 1].value);
+      for (let j = 0; j < Math.max(L.length, R.length); j++) rows.push({ l: j < L.length ? { t: 'del', x: L[j] } : { t: 'pad', x: '' }, r: j < R.length ? { t: 'add', x: R[j] } : { t: 'pad', x: '' } });
+      k++;
+    } else if (p.removed) split(p.value).forEach(x => rows.push({ l: { t: 'del', x }, r: { t: 'pad', x: '' } }));
+    else if (p.added) split(p.value).forEach(x => rows.push({ l: { t: 'pad', x: '' }, r: { t: 'add', x } }));
     else {
-      const show = ls.length > CONTEXT * 2 + 1 ? [...ls.slice(0, idx === 0 ? 0 : CONTEXT), null, ...ls.slice(-CONTEXT)] : ls;
-      show.forEach(l => { const r = l === null ? { t: 'gap', l: '⋯' } : { t: 'ctx', l }; left.push(r); right.push(r); });
+      const ls = split(p.value);
+      const keep = sc.function ? ls : (ls.length > 5 ? [...ls.slice(0, k === 0 ? 0 : 2), null, ...ls.slice(-2)] : ls);
+      keep.forEach(x => rows.push(x === null ? { l: { t: 'gap', x: '⋯' }, r: { t: 'gap', x: '⋯' } } : { l: { t: 'ctx', x }, r: { t: 'ctx', x } }));
     }
-    // 좌우 줄 수를 맞춘다
-    while (left.length < right.length && (p.added)) left.push({ t: 'ctx', l: '' });
-    while (right.length < left.length && (p.removed)) right.push({ t: 'ctx', l: '' });
-  });
-  let L = left, R = right;
-  const MAX = 34;
-  if (L.length > MAX) {
-    const firstChange = Math.max(0, Math.min(L.findIndex(x => x.t === 'del'), R.findIndex(x => x.t === 'add')) - 3);
-    L = L.slice(firstChange, firstChange + MAX); R = R.slice(firstChange, firstChange + MAX);
   }
-  const col = rows => rows.map(r => `<div class="dl ${r.t === 'ctx' ? '' : r.t}">${esc(r.l) || ' '}</div>`).join('');
-  return `<h2>${esc(sc.heading)}</h2><div class="diff" style="height:calc(100% - 80px)">
-    <div class="dcol"><div class="dh b">고치기 전 · ${esc(sc.file)}${sc.function ? ' · ' + esc(sc.function) + '()' : ''}</div><div class="dcode">${col(L)}</div></div>
-    <div class="dcol"><div class="dh a">고친 뒤 · ${esc(sc.file)}</div><div class="dcode">${col(R)}</div></div></div>`;
+  let view = rows;
+  const MAX = 60;
+  if (rows.length > MAX) {
+    const first = Math.max(0, rows.findIndex(r => r.l.t === 'del' || r.r.t === 'add') - 3);
+    view = rows.slice(first, first + MAX);
+  }
+  const cell = c => `<div class="dl ${c.t}">${esc(c.x) || '&nbsp;'}</div>`;
+  const fontPx = Math.max(12, Math.min(19, Math.floor(19 * 30 / Math.max(view.length, 30))));  // 줄이 많으면 글자를 줄여 한 화면에 담는다
+  return `<h2>${esc(sc.heading)}</h2><div class="dgrid" style="height:calc(100% - 80px);--dfs:${fontPx}px">
+    <div class="dh b">고치기 전 · ${esc(sc.file)}${sc.function ? ' · ' + esc(sc.function) + '()' : ''}</div><div class="dh a">고친 뒤 · ${esc(sc.file)}${sc.function ? ' · ' + esc(sc.function) + '()' : ''}</div>
+    ${view.map(r => cell(r.l) + cell(r.r)).join('')}</div>`;
 }
 
 // ---- 녹화·인코딩 ------------------------------------------------------------------------
@@ -193,7 +209,7 @@ async function renderStill(html, png) {
 }
 
 async function withRecording(fn) {
-  const ctx = await browser.newContext({ viewport: { width: 1536, height: 864 }, recordVideo: { dir: `${B}/rec`, size: { width: W, height: H } } });
+  const ctx = await browser.newContext({ viewport: { width: 1536, height: 864 }, recordVideo: { dir: `${B}/rec`, size: { width: 1536, height: 864 } } });
   const page = await ctx.newPage();
   const t0 = Date.now();
   let result;
@@ -215,7 +231,7 @@ async function runScene(sc, i, total) {
   const tail = sc.tail || 16;
   const { webm, result } = await withRecording(async (page) => {
     await page.setContent(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>${CSS.replaceAll(`${W}px`, '1536px').replaceAll(`${H}px`, '864px')}
-      .top{left:40px;right:40px;top:22px}.badge{font-size:18px}.crumb{font-size:18px}.secs span{font-size:13px}.main{left:40px;right:40px;top:78px;bottom:86px}h2{font-size:34px;margin-bottom:14px}.tout{font-size:17px}.tbar b{font-size:15px}.cap{font-size:21px;bottom:22px}.result{top:48px;font-size:24px}</style></head><body>
+      .top{left:40px;right:40px;top:22px}.badge{font-size:18px}.crumb{font-size:18px}.secs span{font-size:13px}.main{left:40px;right:40px;top:78px;bottom:86px}h2{font-size:34px;margin-bottom:14px}.tout{font-size:20px;line-height:1.45}.tbar b{font-size:16px}.cap{font-size:21px;bottom:22px}.result{top:48px;font-size:24px}</style></head><body>
       <div class="top"><span class="badge">${esc(spec.class)} ${spec.session}회</span><span class="crumb">${esc(spec.title)}</span><span class="sp"></span>
       <div class="secs">${SECTIONS.map(s => `<span class="${s === sectionMap[i - 1] ? 'on' : ''}">${s}</span>`).join('')}</div></div>
       <div class="main"><h2>${esc(sc.heading)}</h2><div class="term" style="height:calc(100% - 62px)"><div class="tbar"><i style="background:#ef4444"></i><i style="background:#f59e0b"></i><i style="background:#22c55e"></i><b>lecture/system — zsh</b></div><div class="tout" id="o"></div></div><div class="result" id="r"></div></div>
@@ -248,7 +264,8 @@ async function runScene(sc, i, total) {
     await flush(true);
     const got = code === 0 ? 'pass' : 'fail';
     const summary = all.trim().split('\n').slice(-1)[0] || '';
-    await page.evaluate(([g, s]) => { const r = document.getElementById('r'); r.className = 'result ' + g; r.textContent = (g === 'pass' ? '통과 · ' : '실패 · ') + s.replace(/=+/g, '').trim(); }, [got, summary]);
+    const badge = sc.demo ? (got === 'pass' ? 'demo' : 'fail') : got;
+    await page.evaluate(([g, s, demo]) => { const r = document.getElementById('r'); r.className = 'result ' + g; r.textContent = demo ? (g === 'demo' ? '실행 완료 · 출력 결과를 확인' : '실행 오류') : (g === 'pass' ? '통과 · ' : '실패 · ') + s.replace(/=+/g, '').trim(); }, [badge, summary, !!sc.demo]);
     const elapsed = (Date.now() - started) / 1000;
     const need = total * 1000 - (Date.now() - started) - 1200;
     if (need > 0) await page.waitForTimeout(need);
@@ -259,7 +276,7 @@ async function runScene(sc, i, total) {
 }
 
 // ---- 메인 ---------------------------------------------------------------------------------
-if (!ONLY) {
+{
   fs.rmSync(workDir, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(workDir), { recursive: true });
   fs.cpSync(labDir, workDir, { recursive: true, filter: s => !s.includes('__pycache__') && !s.includes('.pytest_cache') });

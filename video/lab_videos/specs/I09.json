@@ -1,0 +1,197 @@
+{
+  "id": "I09",
+  "class": "통합반",
+  "session": 9,
+  "title": "관제 화면과 배포",
+  "date": "2027-02-03 (수)",
+  "blocks": "확장 B9 / 플랫폼 B9",
+  "textbook": "textbooks/통합반/I09_관제_화면과_배포.md",
+  "lab": "labs/integrated/S09",
+  "next": {"id": "통합반 10회", "title": "전체 아키텍처 폐루프 시연", "date": "2027-02-04 (목)"},
+  "scenes": [
+    {
+      "type": "title",
+      "caption": "통합반 9회 · 관제 화면과 배포",
+      "subtitle": "앱 URL 하나로 같은 사건의 데이터와 업무 진행을 본다",
+      "points": ["앱 설정 APP_CONFIG 네 값이 어느 서버를 가리키는지 채운다", "설비·사건·사건 상세·업무 인스턴스 조회 주소를 제공 화면과 맞춘다", "게시 로그를 읽고 같은 사건 확인 세 가지를 본다"],
+      "narration": "통합반 아홉 번째 실습입니다. 4회에 만든 관제 화면은 로컬 관제 API 한 곳만 읽었죠. 오늘 다룰 제조 운영 앱은 세 곳을 함께 읽습니다. 설비와 사건 목록은 7회에 발행한 Ontology Studio 객체에서, 사건 기록은 관제 API 에서, 업무 진행은 8회에 연결한 프로세스에서 가져옵니다. 화면 코드는 제공본을 그대로 쓰고, 어디서 읽을지 정하는 설정과 주소의 빈칸만 채운 뒤 교육용 플랫폼(Lab Platform)에 게시하겠습니다."
+    },
+    {
+      "type": "concept",
+      "caption": "앱 하나가 세 곳을 읽는다",
+      "heading": "제조 운영 앱의 칸마다 읽는 곳이 다르다",
+      "points": ["설비·사건 목록 → 교육용 플랫폼 Ontology 객체 (:8910 · Asset, HAS_EVENT)", "온도 추이·사건 기록 → 관제 API (:8800 · /api/series, /api/events)", "업무 진행·업무 열기 → 교육용 플랫폼 Process (:8910 · instances, start)", "화면은 2초마다 다시 읽는다"],
+      "image": "materials/screenshots/S18_app_ops_console.png",
+      "analogy": "한 장의 가족 앨범에 세 사람이 찍은 사진을 모아 붙이는 것과 같다. 사진마다 누가 찍었는지 적어 둬야 한다.",
+      "narration": "완성된 제조 운영 앱 화면입니다. 왼쪽 위 설비 목록과 그 아래 사건 목록은 Ontology 객체에서 읽습니다. 오른쪽 위 온도 추이와 가운데 아래 사건 기록은 8800번 포트의 관제 API 에서, 오른쪽 아래 업무 진행은 8910번 포트의 교육용 플랫폼 프로세스에서 읽죠. 세 사람이 찍은 사진을 한 앨범에 붙이는 것처럼, 칸마다 어디서 온 데이터인지 알아야 문제가 생겼을 때 찾아갈 수 있습니다."
+    },
+    {
+      "type": "concept",
+      "caption": "화면과 설정은 따로 있다",
+      "heading": "window.APP_CONFIG — 어디서 읽을지 적는 설정",
+      "points": ["hydops_api: 관제 API 주소", "platform_api: 교육용 플랫폼 주소", "schema_name: 7회에 발행한 스키마 이름", "process_def_id: 8회에 연결한 프로세스 정의 ID"],
+      "analogy": "휴대폰의 단축번호처럼, 화면은 '1번에 전화'만 알고 1번이 누구인지는 설정이 정한다.",
+      "note": "앱 게시는 화면만 올리는 일이다. :8800 과 :8910 서버는 강사가 미리 운영한다.",
+      "narration": "화면 코드는 서버 주소를 직접 적지 않고, APP_CONFIG 라는 설정에서 꺼내 씁니다. 휴대폰 단축번호를 떠올려 보세요. 화면은 1번으로 전화하라는 것만 알고, 1번이 누구인지는 설정이 정합니다. 설정 네 값은 관제 API 주소, 교육용 플랫폼 주소, 스키마 이름, 프로세스 정의 ID 입니다. 그리고 앱 게시는 화면만 올리는 일이라서, 연결한 서버가 멈춰 있으면 게시가 성공해도 화면은 비어 보입니다."
+    },
+    {
+      "type": "code",
+      "caption": "제공 화면이 부르는 주소",
+      "heading": "ops-console/index.html — 조회 메서드",
+      "file": "system/labplatform/app_templates/ops-console/index.html",
+      "lines": [103, 118],
+      "highlight": [103, 104, 108, 110, 115],
+      "note": "S 는 ${cfg.platform_api}/studio/schemas/${cfg.schema_name} 을 줄여 쓴 것이다.",
+      "narration": "제공 화면의 조회 코드입니다. 이 파일은 고치지 않고 읽기만 합니다. 노란 줄을 위에서부터 보면, 설비 목록은 Asset 객체를 fetch 하고, 사건 목록은 Asset 에서 HAS_EVENT 관계를 따라갑니다. 사건 기록은 cfg 점 hydops_api 에서, 인스턴스는 cfg 점 platform_api 에서 읽고, 업무 열기 버튼은 프로세스 정의의 start 주소로 POST 를 보내죠. 오늘 우리가 채울 주소는 이 줄들과 글자까지 같아야 합니다."
+    },
+    {
+      "type": "app",
+      "caption": "게시된 앱에서 사건 열기",
+      "heading": "제조 운영 앱 · 같은 사건 확인",
+      "action": "app_page",
+      "params": {},
+      "narration": "게시된 앱을 직접 열어 보겠습니다. 주소는 8910번 포트의 apps 슬래시 hydops-ops 입니다. 사건 목록에서 사건 하나를 누르면 아래에 사건 기록과 업무 진행이 채워지고, 같은 사건 확인 칸에 세 줄이 뜹니다. 화면 event_id, 프로세스 입력 event_id, 조치 기록 event_id 가 같은지 보는 표시죠. 조치 기록이 없는 사건이면 세 번째 줄은 해당 없음으로 나옵니다. 오늘 실습에서는 이 판정을 파이썬으로 옮겨 봅니다."
+    },
+    {
+      "type": "task",
+      "caption": "오늘의 실습 과제 S09",
+      "heading": "실습 과제 · 설정과 주소의 빈칸 채우기",
+      "steps": ["시작본 테스트를 돌려 본다", "config.js 네 값을 채운다", "app_bindings.js 의 클래스·관계·서버 변수·메서드 빈칸을 채운다", "same_event.py 의 필드 이름 빈칸을 채운다", "전체 테스트 6개 통과를 확인한다"],
+      "files": ["labs/integrated/S09/config.js", "labs/integrated/S09/app_bindings.js", "labs/integrated/S09/same_event.py", "labs/integrated/S09/test_check.py"],
+      "narration": "오늘 채울 파일은 세 개입니다. config.js 에는 설정 네 값, app_bindings.js 에는 조회 주소의 빈칸, same_event.py 에는 같은 사건을 확인할 때 읽는 필드 이름을 채웁니다. 테스트는 채운 주소를 제공 index.html 과 대조하고, 실제 서버에는 조회만 보냅니다. 게시나 업무 시작은 하지 않아요. 먼저 시작본 그대로 돌려 보겠습니다."
+    },
+    {
+      "type": "run",
+      "caption": "시작본 그대로 테스트 실행",
+      "heading": "시작본 테스트 — 빈칸 그대로",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "system 폴더에서 실행합니다. 여섯 개가 모두 실패했습니다. 요약 줄을 보면 빈칸 검사, 설정 검사, 주소 대조, 같은 사건 확인, 게시된 앱과의 대조, 그리고 실제 주소로 같은 사건을 읽는 검사까지 모두 빨갛습니다. 설정이 비어 있으니 어느 서버에도 제대로 물어볼 수 없는 상태죠. 설정부터 채우겠습니다."
+    },
+    {
+      "type": "code",
+      "caption": "설정 네 칸",
+      "heading": "config.js — 시작본",
+      "file": "labs/integrated/S09/config.js",
+      "lines": [1, 7],
+      "highlight": [2, 3, 4, 5],
+      "note": "주소 끝에 / 를 붙이지 않는다. 화면이 /api/... 를 이어 붙인다.",
+      "narration": "config.js 입니다. 노란 네 줄이 빈칸이고, 마지막 앱 이름 hydops-ops 는 이미 적혀 있습니다. 흔한 실수 두 가지를 먼저 짚어 둘게요. 하나는 관제 API 와 플랫폼 주소를 바꿔 넣는 것입니다. 사건 기록은 8800번, 객체와 프로세스는 8910번이죠. 다른 하나는 주소 끝에 슬래시를 붙이는 것입니다. 화면이 뒤에 슬래시 api 를 이어 붙이니까 슬래시가 두 번 겹치게 됩니다."
+    },
+    {
+      "type": "code",
+      "caption": "조회 주소의 빈칸",
+      "heading": "app_bindings.js — 시작본",
+      "file": "labs/integrated/S09/app_bindings.js",
+      "lines": [1, 11],
+      "highlight": [4, 5, 6, 7, 9],
+      "note": "${...} 는 config.js 값과 화면에서 고른 값으로 채워진다.",
+      "narration": "app_bindings.js 는 제공 화면의 조회 주소를 한눈에 보이게 뽑아 둔 파일입니다. 노란 줄의 빈칸을 보세요. 설비 목록에는 클래스 이름, 사건 목록에는 관계 이름이 빠져 있습니다. 사건 상세는 어느 서버 변수에서 읽는지, 인스턴스 조회는 어떤 아이디 변수를 쓰는지가 비었고, 업무 열기는 메서드와 정의 ID 변수가 비었죠. 모두 앞에서 본 index.html 에 답이 있습니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "설정 네 값 채우기",
+      "heading": "config.js 채우기",
+      "file": "config.js",
+      "narration": "config.js 를 채웠습니다. hydops_api 는 http://localhost:8800, platform_api 는 http://localhost:8910, schema_name 은 7회에 발행한 HydraulicOps, process_def_id 는 8회의 cooling_response 입니다. 게시 코드 apps.py 는 이 네 값 중 하나라도 없으면 바인딩 누락으로 게시를 멈춥니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "조회 주소 빈칸 채우기",
+      "heading": "app_bindings.js 채우기",
+      "file": "app_bindings.js",
+      "narration": "이어서 주소 빈칸입니다. 설비 목록은 Asset, 사건 목록 관계는 HAS_EVENT, 사건 상세는 hydops_api 에서, 인스턴스는 instance_id 로 읽습니다. 업무 열기는 새 업무를 만드는 요청이라 메서드가 POST 이고, 정의 ID 자리는 process_def_id 입니다. 참고로 설비 목록 조회도 POST 지만 값을 바꾸지 않는 읽기 전용 조회입니다."
+    },
+    {
+      "type": "run",
+      "caption": "설정·주소를 채운 뒤 다시 실행",
+      "heading": "다시 실행 — 남은 것은 same_event.py",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "fail",
+      "narration": "다시 실행하면 두 개 실패, 세 개 통과, 한 개 건너뜀입니다. 설정 검사, 주소 대조, 게시된 앱의 config.js 와 로그 대조가 통과했습니다. 실패한 두 개는 same_event.py 에 빈칸이 남았다는 검사와 같은 사건 판정 검사죠. 건너뛴 한 개는 실제 주소로 사건을 읽는 검사인데, 사건과 인스턴스를 잇는 함수가 아직 비어 있어서 대응된 사건을 하나도 찾지 못했기 때문입니다."
+    },
+    {
+      "type": "code",
+      "caption": "같은 사건 확인 세 줄",
+      "heading": "same_event.py — 시작본",
+      "file": "labs/integrated/S09/same_event.py",
+      "lines": [10, 24],
+      "highlight": [14, 15, 17, 23],
+      "note": "화면의 computed sameUi · sameProcess · sameAction 과 같은 판정이다.",
+      "narration": "same_event.py 는 앱의 같은 사건 확인 세 줄을 파이썬으로 옮긴 것입니다. 노란 줄을 보세요. 첫째 줄은 사건 기록의 event 안에서, 둘째 줄은 인스턴스의 어떤 변수 묶음에서, 셋째 줄은 조치 기록마다 event_id 를 읽습니다. 조치 기록이 아예 없으면 실패가 아니라 해당 없음이라 무엇을 돌려줄지도 비어 있죠. 아래 함수는 사건에 기록된 인스턴스 대응 필드 이름이 빈칸입니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "세 곳의 event_id 비교",
+      "heading": "same_event_checks 채우기",
+      "file": "same_event.py",
+      "function": "same_event_checks",
+      "narration": "same_event_checks 를 채웠습니다. 화면 쪽은 detail 의 event 에서 event_id, 프로세스 쪽은 instance 의 vars 에서 event_id, 조치 기록 쪽은 각 기록의 event_id 를 읽습니다. 조치 기록이 없으면 None 을 돌려줍니다. 승인 거부나 센서 오류처럼 실행 전에 끝난 사건을 틀렸다고 표시하지 않기 위해서입니다."
+    },
+    {
+      "type": "apply_fix",
+      "caption": "사건 → 인스턴스 대응",
+      "heading": "instance_id_of 채우기",
+      "file": "same_event.py",
+      "function": "instance_id_of",
+      "narration": "마지막 빈칸은 사건에서 업무 인스턴스를 찾는 필드, process_ref 입니다. 사건이 교육용 플랫폼 프로세스로 처리됐다면 여기에 인스턴스 ID 와 인스턴스 키가 들어 있고, 로컬에서 처리된 사건이면 비어 있어서 None 을 돌려줍니다. 화면도 이 값이 없으면 인스턴스를 읽지 않고 업무 열기 버튼을 보여 줍니다."
+    },
+    {
+      "type": "run",
+      "caption": "모두 채운 뒤 최종 확인",
+      "heading": "최종 실행 — 6개 모두 통과",
+      "cmd": "PYTHONPATH=. .venv/bin/python -m pytest {WORK} -q -p no:warnings",
+      "expect": "pass",
+      "narration": "최종 실행입니다. 여섯 개 모두 통과했습니다. 마지막 검사는 우리가 채운 주소로 실제 HYD-01 설비의 사건 목록을 읽고, 인스턴스와 대응된 사건마다 사건 기록과 인스턴스를 GET 해서 세 가지 event_id 가 같은지 확인합니다. 업무 열기 주소는 글자만 비교하고 실제로 부르지는 않죠. 설정과 주소만 채웠는데, 화면과 프로세스와 조치 기록이 같은 사건을 가리킨다는 것을 확인했습니다."
+    },
+    {
+      "type": "app",
+      "caption": "Apps 화면 · 게시 로그",
+      "heading": "교육용 플랫폼 Apps 화면",
+      "action": "console",
+      "params": {"tab": "apps"},
+      "narration": "게시는 콘솔의 Apps 화면에서 합니다. 위쪽에 앱 이름 hydops-ops, 템플릿 ops-console, 그리고 바인딩 줄이 보이죠. 이 줄이 우리 config.js 네 값과 같은지 먼저 확인합니다. 아래 앱 카드에는 PUBLISHED 상태와 앱 주소, 게시 로그가 있습니다. 로그는 검증, 번들, 상태 확인, 게시 완료의 네 단계로 남습니다. 상태 확인에서 서버 응답이 200 이 아니면 경고가 붙은 게시로 기록됩니다. 실제 플랫폼에서는 아이나루 앱 게시에 대응합니다."
+    },
+    {
+      "type": "concept",
+      "caption": "연결 확인 ≠ 설비 회복",
+      "heading": "✔✔✔ 는 연결 검사일 뿐이다",
+      "points": ["같은 사건 확인 세 개의 ✔ 는 event_id 가 같다는 뜻이지 회복이 아니다", "명령 결과(SUCCEEDED)가 먼저 생기고, 재측정 줄은 창이 끝난 뒤 생긴다", "재시작 뒤 run_id 는 새 값, 온도 그래프는 새 실행만 — 사건 기록과 인스턴스는 그대로 조회된다"],
+      "image": "materials/diagrams/D02_event_path.png",
+      "note": "재측정 기준(조치 30초 뒤 60초 창, 55°C 이하 10초 연속)은 교육용 가정값이다.",
+      "narration": "주의할 점을 정리하겠습니다. 같은 사건 확인의 체크 세 개는 기록끼리 연결됐다는 뜻이지 설비가 회복됐다는 뜻이 아닙니다. 그림 위쪽 설명처럼 종결 기준은 도구 호출 성공이 아니라 조치 이후 새 관측의 회복이죠. 그래서 사건 기록에는 명령 결과가 먼저 생기고, 재측정 줄은 창이 끝난 뒤에 생깁니다. 서버를 재시작하면 온도 그래프는 새 실행만 그리지만, 이전 사건 기록과 인스턴스는 그대로 다시 찾을 수 있습니다."
+    },
+    {
+      "type": "quiz",
+      "caption": "퀴즈 · 잠시 멈추고 풀어 보세요",
+      "questions": [
+        {"q": "앱 게시 로그는 '게시 완료'인데 화면의 사건 기록 칸이 비어 있다. 먼저 무엇을 확인할까?", "choices": ["① 앱을 다시 게시한다", "② 게시 로그의 상태 확인 단계와 :8800 서버 응답", "③ index.html 을 고친다"]},
+        {"q": "거부된 사건에서 '조치 기록 event_id' 가 ✘ 가 아니라 '해당 없음'으로 나온다. 버그일까?"},
+        {"q": "같은 사건 확인이 ✔✔✔ 다. 이 설비는 회복됐다고 발표해도 될까?"}
+      ],
+      "narration": "퀴즈입니다. 첫 번째, 게시 로그는 게시 완료인데 화면의 사건 기록 칸이 비어 있습니다. 먼저 무엇을 확인할까요. 두 번째, 거부된 사건에서 조치 기록 event_id 가 틀렸다는 표시가 아니라 해당 없음으로 나옵니다. 버그일까요. 세 번째, 같은 사건 확인이 체크 세 개입니다. 이 설비가 회복됐다고 발표해도 될까요. 잠시 영상을 멈추고 풀어 보세요."
+    },
+    {
+      "type": "answer",
+      "caption": "해답",
+      "answers": [
+        {"a": "② 상태 확인 단계와 :8800 서버 응답", "why": "게시는 화면만 올린다. 바인딩한 서버가 멈추면 게시가 되어도 화면이 빈다. config.js 의 hydops_api 값도 함께 본다."},
+        {"a": "버그가 아니다", "why": "거부된 사건은 실행 전에 끝나 조치 기록이 0건이다. same_event.py 는 None(해당 없음)을 돌려준다."},
+        {"a": "안 된다", "why": "✔✔✔ 는 화면·프로세스·조치 기록의 event_id 가 같다는 연결 검사다. 회복은 사건 기록의 재측정 줄(RECOVERED)로 읽는다."}
+      ],
+      "narration": "정답입니다. 첫 번째는 2번, 게시 로그의 상태 확인 단계와 8800번 서버 응답입니다. 게시는 화면만 올리는 일이라 연결한 서버가 멈추면 화면이 비죠. 두 번째는 버그가 아닙니다. 거부된 사건은 실행 전에 끝나 조치 기록이 없으니 해당 없음이 맞습니다. 세 번째는 안 됩니다. 체크 세 개는 기록끼리 같은 사건을 가리킨다는 연결 검사이고, 회복은 사건 기록의 재측정 줄에서 RECOVERED 로 확인합니다."
+    },
+    {
+      "type": "summary",
+      "caption": "오늘 정리",
+      "points": ["제조 운영 앱은 Ontology 객체·관제 API·프로세스 세 곳을 읽는다", "화면 코드는 그대로 두고 APP_CONFIG 네 값과 조회 주소 빈칸만 채웠다", "same_event.py 로 화면·프로세스 입력·조치 기록의 event_id 를 대조했다", "게시 로그는 검증·번들·상태 확인·게시 완료 네 단계다", "✔✔✔ 는 연결 확인이고, 회복은 재측정 기록으로 읽는다"],
+      "narration": "오늘 내용을 정리합니다. 제조 운영 앱은 Ontology 객체, 관제 API, 프로세스 세 곳을 읽습니다. 화면 코드는 그대로 두고 설정 네 값과 조회 주소의 빈칸만 채웠고, same_event.py 로 화면과 프로세스 입력과 조치 기록이 같은 event_id 를 가리키는지 확인했습니다. 게시 로그는 네 단계로 읽고, 체크 세 개는 연결 확인일 뿐 회복은 재측정 기록으로 읽는다는 것도 기억해 두세요."
+    },
+    {
+      "type": "next",
+      "caption": "다음 차수 예고 · 통합반 10회 (마지막 회차)",
+      "points": ["정상·센서 오류·설비 이상을 시연하고 기록 차이를 본다", "회복·미개선·중복 요청을 기록으로 검증한다", "check_submission.py 로 네 가지 합격 목표 0건을 확인하고 발표한다"],
+      "narration": "다음 시간은 2월 4일 목요일, 마지막 회차인 전체 아키텍처 폐루프 시연입니다. 지금까지 채운 빈칸이 하나의 시스템으로 돌아가는지 직접 시연하고, 한 사건의 감지, 근거, 조치, 재측정 기록을 같은 event_id 로 모아 제출합니다. 제출 검사기로 네 가지 합격 목표도 확인하고, 팀원마다 자기 블록을 발표하게 됩니다. 오늘 수고 많으셨습니다."
+    }
+  ]
+}
