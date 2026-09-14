@@ -5,11 +5,9 @@
 
 ## 설명 영상
 
-<video src="https://github.com/uengine-oss/lecture-hydops/raw/main/video/HydOps_강의시스템_설명영상.mp4" controls muted width="720">
-  브라우저가 인라인 재생을 지원하지 않으면 <a href="video/HydOps_강의시스템_설명영상.mp4">여기</a>서 내려받아 볼 수 있다.
-</video>
+![HydOps 관제 화면 미리보기](video/HydOps_preview.gif)
 
-실제 실행 녹화 + OpenAI TTS 나레이션 + 한국어 자막. 자막 파일: [video/HydOps_강의시스템_설명영상.srt](video/HydOps_강의시스템_설명영상.srt)
+GitHub는 저장소 안의 mp4를 다운로드 링크로만 처리해 인라인 재생을 지원하지 않는다. 위 GIF는 관제 화면(B9) 구간 미리보기이고, 나레이션·자막이 있는 전체 영상은 [video/HydOps_강의시스템_설명영상.mp4](video/HydOps_강의시스템_설명영상.mp4)(다운로드), 자막은 [video/HydOps_강의시스템_설명영상.srt](video/HydOps_강의시스템_설명영상.srt)에 있다.
 
 | 폴더 | 내용 | 시작점 |
 |---|---|---|
