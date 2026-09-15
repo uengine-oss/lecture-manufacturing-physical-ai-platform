@@ -14,7 +14,7 @@ BUILD = LV / "build"
 PY = str(SYSTEM / ".venv" / "bin" / "python")
 ENV_FILE = "/Users/uengine/uengine-platform/process-gpt/.env"
 
-TYPES = {"title", "concept", "image", "code", "task", "run", "apply_fix", "app", "quiz", "answer", "summary", "next"}
+TYPES = {"title", "concept", "review", "image", "code", "task", "run", "apply_fix", "app", "quiz", "answer", "summary", "next"}
 APP_ACTIONS = {"dashboard", "neo4j", "console", "platform_flow", "app_page", "notebook", "api"}
 
 

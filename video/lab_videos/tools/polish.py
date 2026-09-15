@@ -22,7 +22,7 @@ STYLE = """너는 한국어 강의 영상 나레이션 편집자다. 아래 '초
 - 음성 합성으로 읽힌다. 괄호·기호·마크다운·이모지를 쓰지 않는다. 화살표는 말로 푼다.
 - 숫자는 읽기 쉽게 적되 값은 그대로 둔다 (예: 60°C → 섭씨 60도, 0.8 → 영 점 팔, 10초 → 10초).
 - 영어 약어·코드 이름은 그대로 두되, 처음 나오는 어려운 용어는 쉬운 말로 한 번 풀어 준다(초안에 풀이가 있으면 유지).
-- 길이는 초안의 85~115% 로 맞춘다.
+- 길이는 초안의 {LEN} 로 맞춘다.
 - 다듬은 나레이션 본문만 출력한다. 설명이나 따옴표를 붙이지 않는다."""
 
 
@@ -30,8 +30,9 @@ def client():
     return OpenAI(api_key=dotenv_values(ENV_FILE)["OPENAI_API_KEY"])
 
 
-def polish_one(c, ctx: str, draft: str) -> str:
-    r = c.responses.create(model=MODEL, instructions=STYLE, input=f"[장면 맥락]\n{ctx}\n\n[초안]\n{draft}")
+def polish_one(c, ctx: str, draft: str, ratio: float = 1.0) -> str:
+    length = "85~115%" if ratio >= 0.95 else f"{int(ratio*100)-5}~{int(ratio*100)+5}% (핵심 설명·문법 풀이·숫자는 남기고 반복되는 군더더기만 줄인다)"
+    r = c.responses.create(model=MODEL, instructions=STYLE.replace("{LEN}", length), input=f"[장면 맥락]\n{ctx}\n\n[초안]\n{draft}")
     return r.output_text.strip()
 
 
@@ -42,20 +43,21 @@ def run(sid: str):
     cache_path = out_dir / "narration.json"
     cache = {x["hash"]: x for x in json.loads(cache_path.read_text())} if cache_path.exists() else {}
     c = client()
+    ratio = float(spec.get("polish_ratio", 1.0))
     jobs = []
     for i, sc in enumerate(spec["scenes"], 1):
         ctx = f"{spec['class']} {spec['session']}회 「{spec['title']}」 · 장면 {i} ({sc['type']}) · 화면 자막: {sc.get('caption', '')}"
-        h = hashlib.sha1((MODEL + STYLE + ctx + sc["narration"]).encode()).hexdigest()[:16]
+        h = hashlib.sha1((MODEL + STYLE + ctx + sc["narration"] + str(ratio)).encode()).hexdigest()[:16]
         jobs.append((i, sc, ctx, h))
 
     def work(job):
         i, sc, ctx, h = job
         if h in cache:
             return cache[h] | {"scene": i}
-        text = polish_one(c, ctx, sc["narration"])
-        ratio = len(text) / max(len(sc["narration"]), 1)
-        if not (0.7 <= ratio <= 1.35):  # 지나치게 늘거나 줄면 한 번 더
-            text = polish_one(c, ctx + f"\n(이전 결과 길이 비율 {ratio:.2f} — 초안 길이에 맞출 것)", sc["narration"])
+        text = polish_one(c, ctx, sc["narration"], ratio)
+        got = len(text) / max(len(sc["narration"]), 1)
+        if not (ratio * 0.8 <= got <= ratio * 1.3):  # 지나치게 늘거나 줄면 한 번 더
+            text = polish_one(c, ctx + f"\n(이전 결과 길이 비율 {got:.2f} — 목표 비율 {ratio:.2f} 에 맞출 것)", sc["narration"], ratio)
         return {"scene": i, "type": sc["type"], "hash": h, "draft": sc["narration"], "text": text, "model": MODEL}
 
     with ThreadPoolExecutor(6) as ex:

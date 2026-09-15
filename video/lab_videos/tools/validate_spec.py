@@ -50,9 +50,11 @@ def check(sid: str, do_run: bool) -> list[str]:
             errs.append(f"#{i} quiz 3문항 아님")
         if t == "answer" and len(x.get("answers", [])) != 3:
             errs.append(f"#{i} answer 3개 아님")
-    est = total_chars / 7.0 / 60
-    if not (6.5 <= est <= 13.5):
-        errs.append(f"예상 길이 {est:.1f}분 (7~12분 권장)")
+    est = total_chars * float(s.get("polish_ratio", 1.0)) / 7.0 / 60
+    target = s.get("target_minutes")
+    lo, hi = (target * 0.8, target * 1.15) if target else (6.5, 13.5)
+    if not (lo <= est <= hi):
+        errs.append(f"예상 길이 {est:.1f}분 (권장 {lo:.0f}~{hi:.0f}분)")
     if "run" not in types:
         errs.append("run 장면 없음 (실습을 실제로 실행해야 한다)")
     if do_run and not errs:

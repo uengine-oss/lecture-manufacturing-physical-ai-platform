@@ -36,7 +36,7 @@ const SECTIONS = ['시작', '기본 개념', '실습', '퀴즈', '해답', '요�
 let seenLab = false;
 function sectionOf(sc) {
   if (sc.type === 'title') return '시작';
-  if (['task', 'run', 'apply_fix'].includes(sc.type)) seenLab = true;
+  if (sc.type === 'task' || sc.type === 'apply_fix' || (sc.type === 'run' && !sc.demo)) seenLab = true;  // 문법 시연(demo)은 개념 구간에 머문다
   if (sc.type === 'quiz') return '퀴즈';
   if (sc.type === 'answer') return '해답';
   if (sc.type === 'summary') return '요약';
@@ -82,7 +82,16 @@ h1{font-size:58px;margin:0 0 18px;letter-spacing:-.02em;line-height:1.2}h2{font-
 .result{position:absolute;right:40px;top:70px;font:800 30px Pretendard,sans-serif;padding:10px 24px;border-radius:12px;display:none}.result.fail{display:block;background:#dc2626;color:#fff}.result.pass{display:block;background:#16a34a;color:#fff}.result.demo{display:block;background:#475569;color:#fff}
 .bigtitle{display:flex;flex-direction:column;justify-content:center;height:100%}.kick{color:#38bdf8;font-size:30px;font-weight:800;letter-spacing:.04em;margin-bottom:14px}
 .meta{display:flex;gap:14px;margin:10px 0 34px;flex-wrap:wrap}.meta span{font-size:24px;background:rgba(255,255,255,.08);padding:8px 18px;border-radius:12px;color:#cbd5e1}
-.nextbox{border:2px solid #38bdf8;border-radius:22px;padding:34px 40px;background:rgba(56,189,248,.08)}`;
+.nextbox{border:2px solid #38bdf8;border-radius:22px;padding:34px 40px;background:rgba(56,189,248,.08)}
+.split2{display:grid;grid-template-columns:1fr 1.05fr;gap:36px;height:100%;align-items:start}.split2 h2{font-size:42px}.split2 .pts li{font-size:29px}
+.snip{background:#fff;border-radius:16px;overflow:hidden;color:#0f172a;max-height:100%;display:flex;flex-direction:column}
+.scode{margin:0;padding:18px 22px;font:23px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow:hidden}
+.sout{background:#0a0f1a;color:#d1d9e6;padding:14px 22px}.sout b{color:#86efac;font:700 18px Pretendard,sans-serif}.sout pre{margin:6px 0 0;font:21px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap}
+.codesplit{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;height:calc(100% - 80px)}.codesplit .editor{height:100% !important}
+.explain{display:flex;flex-direction:column;gap:12px;overflow:hidden}.ex{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px}
+.ex b{display:block;color:#fbbf24;font:700 22px ui-monospace,Menlo,monospace;margin-bottom:4px}.ex div{font-size:22px;line-height:1.4;color:#dbe6f3}
+.rev{display:grid;grid-template-columns:1fr 1fr;gap:18px}.ritem{display:flex;gap:16px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.35);border-radius:16px;padding:18px 22px;font-size:28px;line-height:1.4}
+.ritem span{flex:none;width:44px;height:44px;border-radius:50%;background:#10b981;color:#fff;display:grid;place-items:center;font-weight:800}`;
 
 function frame(sc, i, inner) {
   const sec = sectionMap[i - 1];
@@ -104,6 +113,10 @@ function slideInner(sc) {
         <div class="card"><div style="font-size:26px;color:#93c5fd;font-weight:700;margin-bottom:14px">오늘 할 일</div><ul class="pts">${(sc.points || []).map(p => `<li>${esc(p)}</li>`).join('')}</ul></div></div>`;
     case 'concept': {
       const text = `<h2>${esc(sc.heading)}</h2><ul class="pts">${(sc.points || []).map(p => `<li>${esc(p)}</li>`).join('')}</ul>${sc.analogy ? `<div class="analogy">비유 · ${esc(sc.analogy)}</div>` : ''}${sc.note ? `<div class="note">주의 · ${esc(sc.note)}</div>` : ''}`;
+      if (sc.snippet) {
+        const code = `<div class="snip"><div class="etab"><span>${esc(sc.snippet_title || '예제')}</span></div><pre class="scode"><code class="language-python">${esc(sc.snippet)}</code></pre>${sc.output ? `<div class="sout"><b>실행 결과</b><pre>${esc(sc.output)}</pre></div>` : ''}</div>`;
+        return `${codeHtml()}<div class="split2"><div>${text}</div>${code}</div><script>document.querySelectorAll('code.language-python').forEach(c=>{c.innerHTML=hljs.highlight(c.textContent,{language:'python'}).value})</script>`;
+      }
       return sc.image ? `<div class="split"><div>${text}</div><div class="imgbox"><img src="${img64(sc.image)}"></div></div>` : `<div style="max-width:1500px">${text}</div>`;
     }
     case 'image':
@@ -114,6 +127,8 @@ function slideInner(sc) {
       return `<h2>퀴즈 · 잠시 멈추고 풀어 보세요</h2><div class="qgrid">${sc.questions.map((q, k) => `<div class="card q"><b>Q${k + 1}</b>${esc(q.q)}${q.choices ? `<div class="choices">${q.choices.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}</div>`).join('')}</div>`;
     case 'answer':
       return `<h2>해답</h2><div class="qgrid">${sc.answers.map((a, k) => `<div class="card"><div class="a"><b>A${k + 1}</b>${esc(a.a)}</div><div class="why">${esc(a.why)}</div></div>`).join('')}</div>`;
+    case 'review':
+      return `<h2>${esc(sc.heading || '복습')}</h2><div class="rev">${sc.points.map((p, k) => `<div class="ritem"><span>${k + 1}</span><div>${esc(p)}</div></div>`).join('')}</div>${sc.note ? `<div class="note">${esc(sc.note)}</div>` : ''}`;
     case 'summary':
       return `<h2>오늘 정리</h2><div class="card"><ul class="pts">${sc.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>`;
     case 'next':
@@ -127,7 +142,9 @@ function codeInner(sc) {
   const [a, b] = sc.lines;
   const hl = new Set(sc.highlight || []);
   const rows = lines.slice(a - 1, b).map((l, k) => `<div class="ln${hl.has(a + k) ? ' hl' : ''}"><i>${a + k}</i><code class="language-python">${esc(l) || ' '}</code></div>`).join('');
-  return `${codeHtml()}<h2>${esc(sc.heading)}</h2><div class="editor" style="height:calc(100% - ${sc.note ? 170 : 80}px)"><div class="etab"><span>${esc(sc.file)}</span></div><div class="code">${rows}</div></div>
+  const editor = `<div class="editor" style="height:calc(100% - ${sc.note ? 170 : 80}px)"><div class="etab"><span>${esc(sc.file)}</span></div><div class="code">${rows}</div></div>`;
+  const explain = sc.explain ? `<div class="explain">${sc.explain.map(e => `<div class="ex"><b>${esc(e.k)}</b><div>${esc(e.v)}</div></div>`).join('')}</div>` : '';
+  return `${codeHtml()}<h2>${esc(sc.heading)}</h2>${sc.explain ? `<div class="codesplit">${editor}${explain}</div>` : editor}
   ${sc.note ? `<div class="note" style="margin-top:14px">${esc(sc.note)}</div>` : ''}
   <script>document.querySelectorAll('code').forEach(c=>{c.innerHTML=hljs.highlight(c.textContent,{language:'python'}).value})</script>`;
 }

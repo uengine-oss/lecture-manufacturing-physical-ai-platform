@@ -13,7 +13,7 @@ GitHub는 저장소 안의 mp4를 다운로드 링크로만 처리해 인라인 
 |---|---|---|
 | `system/` | 강의용 완성 시스템 (B1~B9 + 교육용 플랫폼) · 테스트 · 준비 스크립트 | [system/README.md](system/README.md) |
 | `video/` | 설명 영상 (실제 실행 녹화 + OpenAI TTS 나레이션 + 한국어 자막) | `HydOps_강의시스템_설명영상.mp4` · `video_report.txt` |
-| `video/lab_videos/` | 차수별 실습 영상 19편 (실전반 9 · 통합반 10, 합계 4시간 9분) — 기본 개념 → 실습(실제 실행) → 퀴즈 → 해답 → 요약 → 다음 차수, 나레이션 gpt-6-astra 다듬기 | [video/lab_videos/README.md](video/lab_videos/README.md) |
+| `video/lab_videos/` | 차수별 실습 영상 19편 (실전반 9 · 통합반 10, 합계 4시간 24분 · 실전반 1회는 기초 보강판 27분) — 기본 개념 → 실습(실제 실행) → 퀴즈 → 해답 → 요약 → 다음 차수, 나레이션 gpt-6-astra 다듬기 | [video/lab_videos/README.md](video/lab_videos/README.md) |
 | `materials/` | 중간 결과물 — 데이터 그림 10 · 개념도 7 · 실제 화면 17 | [materials/index.html](materials/index.html) |
 | `textbooks/` | 차수별 교재 — 실전반 9 · 통합반 10 (Markdown 원본, DOCX·HTML·PDF 빌드) | [textbooks/dist/index.html](textbooks/dist/index.html) |
 | `labs/` | 회차별 실습 — 시작본 · 정답본 · 자동 검증 테스트 | `labs/practical/SXX` · `labs/integrated/SXX` |

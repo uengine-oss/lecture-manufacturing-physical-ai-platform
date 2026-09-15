@@ -10,7 +10,7 @@ SEC = {"title": "시작", "quiz": "퀴즈", "answer": "해답", "summary": "요�
 def section(spec, i):
     seen = False
     for k, sc in enumerate(spec["scenes"][:i], 1):
-        if sc["type"] in ("task", "run", "apply_fix"):
+        if sc["type"] in ("task", "apply_fix") or (sc["type"] == "run" and not sc.get("demo")):
             seen = True
     t = spec["scenes"][i - 1]["type"]
     return SEC.get(t) or ("실습" if seen else "기본 개념")

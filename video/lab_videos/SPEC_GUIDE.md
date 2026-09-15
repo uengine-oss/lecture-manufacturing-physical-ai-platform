@@ -81,3 +81,11 @@
 
 ### `apply_fix` 의 `function`
 `"function": "reduce_to_seconds"` 를 주면 그 **최상위 함수 하나만** 정답본으로 바꾼다. 여러 장면에 나눠 한 함수씩 고치고, 사이에 `run` 을 넣어 실패 수가 줄어드는 과정을 보여 줄 수 있다. 빠뜨린 함수가 있으면 마지막 `run` 이 `pass` 가 되지 않아 제작이 멈춘다. 파이썬이 아닌 파일(JSON·SKILL.md·ipynb 등)은 `function` 없이 파일 전체를 바꾼다.
+
+### 확장판(기초 보강) 필드
+- 사양 최상위 `"target_minutes": 24` — 길이 검증 기준을 바꾼다.
+- `concept` 에 `snippet`(예제 코드 문자열), `snippet_title`, `output`(실행 결과 문자열 — 반드시 실제로 실행한 출력)을 주면 오른쪽에 편집기·결과 창을 그린다.
+- `code` 에 `explain`: [{"k": "문법/줄", "v": "쉬운 설명"}] 을 주면 코드 옆에 설명 카드를 붙인다.
+- `review`: `heading`, `points`[…], `note`? — 구간 끝 복습 카드. 섹션은 앞 장면을 따른다.
+- 파이썬 문법 시연은 `demos/<ID>/*.py` 파일을 `code` 로 보여 준 뒤 `run`(`demo: true`)으로 실제 실행한다.
+- 사양 최상위 `"polish_ratio": 0.8` — gpt-6-astra 다듬기에서 초안 길이를 이 비율로 줄인다(핵심 설명·숫자 유지). 길이 검증도 이 비율로 계산한다.
